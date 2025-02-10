@@ -1,6 +1,6 @@
 # See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
 repos:
+# Generally useful checks provided by pre-commit
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v5.0.0
   hooks:
@@ -18,11 +18,7 @@ repos:
     - id: forbid-submodules
     - id: mixed-line-ending
     - id: trailing-whitespace
-# This one supports comments in JSON, vs the one in pre-commit-hooks does not
-- repo: https://gitlab.com/bmares/check-json5
-  rev: v1.0.0
-  hooks:
-    - id: check-json5
+# Don't allow checking in files under /src/, as a general rule
 - repo: local
   hooks:
     - id: no-src-checkin
@@ -30,3 +26,59 @@ repos:
       entry: not allowed to check in files under src/
       files: '^src/.*'
       language: fail
+# JSON (This one supports comments, vs the one in pre-commit-hooks repo does not)
+- repo: https://gitlab.com/bmares/check-json5
+  rev: v1.0.0
+  hooks:
+    - id: check-json5
+# Python
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.9.5
+  hooks:
+    - id: ruff-format
+    - id: ruff
+      args: [ --fix ]
+# C++ formatting
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: v19.1.7
+  hooks:
+    - id: clang-format
+      types_or: [c++, c, c#, cuda, json, objective-c, proto, textproto]
+# - repo: clang-format
+#     rev:
+#     hooks:
+#     - id:
+# # CMake
+# - repo: https://github.com/cmake-lint/cmake-lint
+#     rev: v1.13.0 # Use the latest stable version
+#     hooks:
+#     - id: cmake-lint
+# # C++ linting
+# - repo: clang-tidy
+#     rev:
+#     hooks:
+#     - id:
+# # Bash / Shell scripts
+# - repo: shellcheck
+#     rev:
+#     hooks:
+#     - id:
+# # Docker/Container files
+# - repo: hadolint
+#     rev:
+#     hooks:
+#     - id:
+# # XML
+# - repo: xml-lint
+#     rev:
+#     hooks:
+#     - id:
+# - repo: https://github.com/markdownlint/markdownlint
+#   rev: v0.13.0
+#   hooks:
+#     - id: markdownlint
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.30.0
+  hooks:
+  - id: markdownlint
+    args: [ --fix ]
