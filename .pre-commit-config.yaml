@@ -44,41 +44,35 @@ repos:
   hooks:
     - id: clang-format
       types_or: [c++, c, c#, cuda, json, objective-c, proto, textproto]
-# - repo: clang-format
-#     rev:
-#     hooks:
-#     - id:
-# # CMake
-# - repo: https://github.com/cmake-lint/cmake-lint
-#     rev: v1.13.0 # Use the latest stable version
-#     hooks:
-#     - id: cmake-lint
 # # C++ linting
 # - repo: clang-tidy
 #     rev:
 #     hooks:
 #     - id:
-# # Bash / Shell scripts
-# - repo: shellcheck
-#     rev:
-#     hooks:
-#     - id:
+# Markdown
+- repo: https://github.com/igorshubovych/markdownlint-cli
+  rev: v0.30.0
+  hooks:
+    - id: markdownlint
+      args: [ --fix ]
+# XML
+- repo: https://github.com/emersonknapp/ament_xmllint
+  rev: v0.1
+  hooks:
+    - id: ament_xmllint
+# CMake
+- repo: https://github.com/cmake-lint/cmake-lint
+  rev: 1.4.3
+  hooks:
+    - id: cmakelint
+      args: [ --linelength=140 ]
+# Bash / Shell scripts
+- repo: https://github.com/koalaman/shellcheck-precommit
+  rev: v0.10.0
+  hooks:
+    - id: shellcheck
 # # Docker/Container files
 # - repo: hadolint
 #     rev:
 #     hooks:
 #     - id:
-# # XML
-# - repo: xml-lint
-#     rev:
-#     hooks:
-#     - id:
-# - repo: https://github.com/markdownlint/markdownlint
-#   rev: v0.13.0
-#   hooks:
-#     - id: markdownlint
-- repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.30.0
-  hooks:
-  - id: markdownlint
-    args: [ --fix ]
