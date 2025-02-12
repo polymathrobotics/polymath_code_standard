@@ -43,12 +43,19 @@ repos:
   rev: v19.1.7
   hooks:
     - id: clang-format
-      types_or: [c++, c, c#, cuda, json, objective-c, proto, textproto]
-# # C++ linting
-# - repo: clang-tidy
-#     rev:
-#     hooks:
-#     - id:
+# C++ linting
+- repo: https://github.com/cpplint/cpplint
+  rev: 2.0.0
+  hooks:
+    - id: cpplint
+      # disable all formatting filters, we are only here for the linting
+      # TODO(emerson) legal/copyright is actually something we will be enforcing
+      # TODO(emerson) decide on header guard style checker - we want these but the checker as-is is not right
+      args:
+      - "--linelength"
+      - "200"
+      - "--filter"
+      -  "-build/header_guard,-legal/copyright,-readability/braces,-runtime/references,-whitespace/braces,-whitespace/indent,-whitespace/parens,-whitespace/semicolon"
 # Markdown
 - repo: https://github.com/igorshubovych/markdownlint-cli
   rev: v0.30.0
@@ -71,8 +78,10 @@ repos:
   rev: v0.10.0
   hooks:
     - id: shellcheck
-# # Docker/Container files
-# - repo: hadolint
-#     rev:
-#     hooks:
-#     - id:
+      args: [ -e, SC1091 ]
+# Docker/Container files
+- repo: https://github.com/hadolint/hadolint
+  rev: v2.12.0
+  hooks:
+    - id: hadolint-docker
+      args: [ --ignore, SC1091, --ignore, DL3006 ]
