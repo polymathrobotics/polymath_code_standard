@@ -22,14 +22,6 @@ repos:
     - id: forbid-submodules
     - id: mixed-line-ending
     - id: trailing-whitespace
-# Don't allow checking in files under /src/, as a general rule
-- repo: local
-  hooks:
-    - id: no-src-checkin
-      name: Not allowed to check in files under src/
-      entry: not allowed to check in files under src/
-      files: '^src/.*'
-      language: fail
 # JSON (This one supports comments, vs the one in pre-commit-hooks repo does not)
 - repo: https://gitlab.com/bmares/check-json5
   rev: v1.0.0
