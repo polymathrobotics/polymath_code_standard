@@ -7,7 +7,8 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 1. Copy [`.pre-commit-config.yaml`](./.pre-commit-config.yaml) to the top level of your repository
 1. Copy [`.config`](./.config/) directory to the top level of your repository
 1. Add the following block to the "Getting Started" or "Setup" section of your repository's `README.md`
-    ```
+
+    ```markdown
     ### Activating Code Standard Hooks
 
     Pre-commit hooks are provided to maintain code standards for this repository
@@ -16,6 +17,7 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 
     Now all git commits will be automatically gated by the configured checks.
     ```
+
 1. Comment out blocks of `.pre-commit-config.yaml` where necessary when those standards have not yet been applied to the codebase. Aim to get to all of them, but you may need to go in phases for reviewability.
 1. After merging a major reformatting/linting pass, add the commit hash to `.git-blame-ignore-revs` to have Git blames point back to the previous revision instead of blaming the reformatting.
 
@@ -23,4 +25,4 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 
 When there are updates to the settings in this standard - copy the files as above and apply the changes in a merge request.
 
-Automation is not yet implemented for these updates, but we plan to try using something like https://github.com/marketplace/actions/repo-file-sync-action to automatically open merge requests.
+Automation is not yet implemented for these updates, but we plan to try using something like <https://github.com/marketplace/actions/repo-file-sync-action> to automatically open merge requests.

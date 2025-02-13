@@ -59,7 +59,7 @@ repos:
   rev: v0.30.0
   hooks:
     - id: markdownlint
-      args: [ --fix, --disable, MD025, MD013 ]
+      args: [ --fix, --disable=MD013 ]
 # XML
 - repo: https://github.com/emersonknapp/ament_xmllint
   rev: v0.1
