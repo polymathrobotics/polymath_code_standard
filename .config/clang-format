@@ -9,6 +9,7 @@ AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: None
 AlignConsecutiveDeclarations: None
 AlignEscapedNewlines: Left
+AlignTrailingComments: false
 AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: Empty
@@ -41,9 +42,26 @@ DerivePointerAlignment: false
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: LogicalBlock
 FixNamespaceComments: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Headers in <> with .h extension (best guess at C system headers)
+  - Regex:           '<([A-Za-z0-9\Q/-_\E])+\.h>'
+    Priority:        1
+  # Headers in <> without extension (C++ system headers)
+  - Regex:           '<([A-Za-z0-9\Q/-_\E])+>'
+    Priority:        2
+  # Headers in <> with other extensions.
+  - Regex:           '<([A-Za-z0-9.\Q/-_\E])+>'
+    Priority:        3
+  # Headers in ""
+  - Regex:           '"([A-Za-z0-9.\Q/-_\E])+"'
+    Priority:        4
 IndentAccessModifiers: false
 IndentPPDirectives: BeforeHash
 PackConstructorInitializers: Never
 PointerAlignment: Middle
 ReferenceAlignment: Middle
 ReflowComments: false
+SeparateDefinitionBlocks: Always
+SortIncludes: CaseInsensitive
+SpacesBeforeTrailingComments: 2
