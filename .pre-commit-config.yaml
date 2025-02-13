@@ -1,4 +1,8 @@
-# See https://pre-commit.com for more information
+---
+# Pre-commit config for Polymath Code Standard - https://gitlab.com/polymathrobotics/polymath_code_standard
+# Synced from origin - DO NOT EDIT IN CONSUMING REPOSITORY
+
+# See https://pre-commit.com for more information on these settings
 repos:
 # Generally useful checks provided by pre-commit
 - repo: https://github.com/pre-commit/pre-commit-hooks
