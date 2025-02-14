@@ -1,0 +1,16 @@
+
+---
+include:
+  # Enables checking out the current branch on build and test jobs
+  - project: "polymathrobotics/ci/ci_templates"
+    ref: main
+    file: "/common/rules.yml"
+  # Runs precommit checks
+  - project: "polymathrobotics/ci/ci_templates"
+    ref: main
+    file: "/common/pre-commit.yml"
+
+build:
+  stage: build
+  script:
+    - echo "The project is built"
