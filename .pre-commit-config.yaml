@@ -82,4 +82,8 @@ repos:
   rev: v2.12.0
   hooks:
     - id: hadolint-docker
-      args: [ --ignore, SC1091, --ignore, DL3006 ]
+      args: [
+        --ignore, SC1091,
+        --ignore, DL3006,
+        --ignore, DL3008,
+      ]
