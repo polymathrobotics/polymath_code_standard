@@ -55,11 +55,11 @@ repos:
       - "--filter"
       -  "-build/header_guard,-legal/copyright,-readability/braces,-runtime/references,-whitespace/braces,-whitespace/indent,-whitespace/newline,-whitespace/parens,-whitespace/semicolon"
 # Markdown
-- repo: https://github.com/igorshubovych/markdownlint-cli
-  rev: v0.30.0
+- repo: https://github.com/jackdewinter/pymarkdown
+  rev: v0.9.28
   hooks:
-    - id: markdownlint
-      args: [ --fix, --disable=MD013 ]
+    - id: pymarkdown
+      args: [ -d, MD013, fix ]
 # XML
 - repo: https://github.com/emersonknapp/ament_xmllint
   rev: v0.1
@@ -72,16 +72,16 @@ repos:
     - id: cmakelint
       args: [ --linelength=140 ]
 # Bash / Shell scripts
-- repo: https://github.com/koalaman/shellcheck-precommit
-  rev: v0.10.0
+- repo: https://github.com/shellcheck-py/shellcheck-py
+  rev: v0.10.0.1
   hooks:
     - id: shellcheck
       args: [ -e, SC1091 ]
 # Docker/Container files
-- repo: https://github.com/hadolint/hadolint
-  rev: v2.12.0
+- repo: https://github.com/AleksaC/hadolint-py
+  rev: v2.12.1b3
   hooks:
-    - id: hadolint-docker
+    - id: hadolint
       args: [
         --ignore, SC1091,
         --ignore, DL3006,
