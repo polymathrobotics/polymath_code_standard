@@ -46,14 +46,7 @@ repos:
   rev: 2.0.0
   hooks:
     - id: cpplint
-      # disable all formatting filters, we are only here for the linting
-      # TODO(emerson) legal/copyright is actually something we will be enforcing
-      # TODO(emerson) decide on header guard style checker - we want these but the checker as-is is not right
-      args:
-      - "--linelength"
-      - "200"
-      - "--filter"
-      -  "-build/header_guard,-legal/copyright,-readability/braces,-runtime/references,-whitespace/braces,-whitespace/indent,-whitespace/newline,-whitespace/parens,-whitespace/semicolon"
+      args: ["--config=.cpplint.cfg"]
 # Markdown
 - repo: https://github.com/jackdewinter/pymarkdown
   rev: v0.9.28
