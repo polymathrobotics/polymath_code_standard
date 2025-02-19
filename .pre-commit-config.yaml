@@ -46,7 +46,7 @@ repos:
   rev: 2.0.0
   hooks:
     - id: cpplint
-      args: ["--config=.cpplint.cfg"]
+      args: ["--config=.cpplint.cfg", --quiet]
 # Markdown
 - repo: https://github.com/jackdewinter/pymarkdown
   rev: v0.9.28
