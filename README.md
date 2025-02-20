@@ -27,6 +27,7 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
     Now all git commits will be automatically gated by the configured checks.
     ````
 
+1. To apply to pre-existing sources: `pre-commit run --all-files`. Once established, commits will need check only changed files.
 1. Comment out blocks of `.pre-commit-config.yaml` where necessary when those standards have not yet been applied to the codebase. Aim to get to all of them, but you may need to go in phases for reviewability.
 1. After merging a major reformatting/linting pass, add the commit hash to `.git-blame-ignore-revs` to have Git blames point back to the previous revision instead of blaming the reformatting.
 
