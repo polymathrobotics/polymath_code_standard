@@ -38,6 +38,8 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
     ```
 
 1. To apply to pre-existing sources: `pre-commit run --all-files`. Once established, `git commit` will automatically check only the relevant changed files.
+    1. If you do not have pre-commit installed, run `python3 -m pip install pre-commit`
+1. (ROS only) Remove all `ament_lint_common` or specific ament linters from `package.xml` and `CMakeLists.txt`. Our formatters take precedence over the ROS 2 core style
 1. Comment out blocks of `.pre-commit-config.yaml` where necessary when those standards have not yet been applied to the codebase. Aim to get to all of them, but you may need to go in phases for reviewability.
 1. After merging a major reformatting/linting pass, add the commit hash to `.git-blame-ignore-revs` to have Git blames point back to the previous revision instead of blaming the reformatting.
 
