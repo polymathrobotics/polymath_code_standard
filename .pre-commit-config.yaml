@@ -80,3 +80,23 @@ repos:
         --ignore, DL3006,
         --ignore, DL3008,
       ]
+- repo: https://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.5.5
+  hooks:
+    - id: insert-license
+      types_or: [python, cmake, shell]
+      name: Copyright headers for Python/CMake
+      args: [
+        --license-filepath, .config/copyright.txt,
+        --comment-style, '#',
+        --allow-past-years,
+        --no-extra-eol,
+      ]
+    - id: insert-license
+      types_or: [c++, c]
+      name: Copyright headers for C/C++
+      args: [
+        --license-filepath, .config/copyright.txt,
+        --comment-style, '//',
+        --allow-past-years,
+      ]
