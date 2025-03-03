@@ -60,6 +60,7 @@ IncludeCategories:
   - Regex:           '"([A-Za-z0-9.\Q/-_\E])+"'
     Priority:        4
 IndentAccessModifiers: false
+IndentExternBlock: NoIndent
 IndentPPDirectives: BeforeHash
 PackConstructorInitializers: Never
 PointerAlignment: Middle
