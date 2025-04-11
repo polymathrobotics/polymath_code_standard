@@ -1,4 +1,3 @@
-
 ---
 include:
   # Enables checking out the current branch on build and test jobs
