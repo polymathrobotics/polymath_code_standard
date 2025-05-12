@@ -4,10 +4,10 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 
 ## Applying this standard to your repository
 
-1. Copy the following to the top level of the repository:
+1. Copy the following to the top level of the repository (see [structure rationale](#structure-rationale) for the why):
     1. [`.pre-commit-config.yaml`](./.pre-commit-config.yaml)
-    1. [`.config/`](./.config/)
     1. [`.cpplint.cfg`](./.cpplint.cfg)
+    1. [`.config/`](./.config/)
 1. Add the following block to the "Getting Started" or "Setup" section of your repository's `README.md`
 
     ````markdown
@@ -48,3 +48,10 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 When there are updates to the settings in this standard - copy the files as above and apply the changes in a merge request.
 
 Automation is not yet implemented for these updates, but we plan to try using something like <https://github.com/marketplace/actions/repo-file-sync-action> to automatically open merge requests.
+
+## Structure Rationale
+
+Why copy all these files?
+
+1. Pre-commit won't grab its own config from a remote URL, so we have to have these configs in each repo. That's meant for repeatability, so that upstream changes can't break your hooks.
+1. Why is `.cpplint.cfg` in toplevel, not in `.config/` dir? : Cpplint tool is so janky that it doesn't have an option to specify a configuration file, it just has a hardcoded list of names to look for, traversing up directories from the file to the first one found.
