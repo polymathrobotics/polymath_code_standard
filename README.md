@@ -6,6 +6,7 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 
 1. Copy the following to the top level of the repository (see [structure rationale](#structure-rationale) for the why):
     1. [`.pre-commit-config.yaml`](./.pre-commit-config.yaml)
+    1. [`.ruff.toml`](./.ruff.toml)
     1. [`.cpplint.cfg`](./.cpplint.cfg)
     1. [`.config/`](./.config/)
 1. Add the following block to the "Getting Started" or "Setup" section of your repository's `README.md`
@@ -54,4 +55,5 @@ Automation is not yet implemented for these updates, but we plan to try using so
 Why copy all these files?
 
 1. Pre-commit won't grab its own config from a remote URL, so we have to have these configs in each repo. That's meant for repeatability, so that upstream changes can't break your hooks.
+1. Why is `.ruff.toml` in toplevel, not in `.config/` dir? : Ruff can have a config specified via commandline, but this allows you to leave your editor unconfigured and autodetect the config, including having several repos in a single colcon workspace that may have different Ruff configs. More flexible this way.
 1. Why is `.cpplint.cfg` in toplevel, not in `.config/` dir? : Cpplint tool is so janky that it doesn't have an option to specify a configuration file, it just has a hardcoded list of names to look for, traversing up directories from the file to the first one found.
