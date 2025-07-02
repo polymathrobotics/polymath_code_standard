@@ -4,11 +4,12 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 
 ## Applying this standard to your repository
 
-1. Copy the following to the top level of the repository (see [structure rationale](#structure-rationale) for the why):
-    1. [`.pre-commit-config.yaml`](./.pre-commit-config.yaml)
-    1. [`.ruff.toml`](./.ruff.toml)
-    1. [`.cpplint.cfg`](./.cpplint.cfg)
-    1. [`.config/`](./.config/)
+1. Run the provided script to copy over files as needed
+
+    ```
+    ./apply_to_repo $PATH_TO_MY_REPOSITORY
+    ```
+
 1. Add the following block to the "Getting Started" or "Setup" section of your repository's `README.md`
 
     ````markdown
@@ -32,10 +33,7 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 
     ```yaml
     include:
-      # Runs precommit checks
-      - project: "polymathrobotics/ci/ci_templates"
-        ref: main
-        file: "/common/pre-commit.yml"
+      - component: gitlab.com/polymathrobotics/polymath_core/pre-commit@ci-1.3
     ```
 
 1. To apply to pre-existing sources: `pre-commit run --all-files`. Once established, `git commit` will automatically check only the relevant changed files.
@@ -46,7 +44,7 @@ Common configuration for the [Polymath Engineering Source Code Standard](https:/
 
 ## Updates
 
-When there are updates to the settings in this standard - copy the files as above and apply the changes in a merge request.
+When there are updates to the settings in this standard - run the script to copy over updates files and apply the changes in a merge request. Re-comment pre-commit sections where necessary.
 
 Automation is not yet implemented for these updates, but we plan to try using something like <https://github.com/marketplace/actions/repo-file-sync-action> to automatically open merge requests.
 

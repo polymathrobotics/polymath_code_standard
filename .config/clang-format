@@ -5,7 +5,7 @@
 # See https://releases.llvm.org/14.0.0/tools/clang/docs/ClangFormatStyleOptions.html for documentation of these options
 BasedOnStyle: Google
 IndentWidth: 2
-ColumnLimit: 100
+ColumnLimit: 120
 
 AccessModifierOffset: -2
 AlignAfterOpenBracket: AlwaysBreak
@@ -60,7 +60,6 @@ IncludeCategories:
   - Regex:           '"([A-Za-z0-9.\Q/-_\E])+"'
     Priority:        4
 IndentAccessModifiers: false
-IndentExternBlock: NoIndent
 IndentPPDirectives: BeforeHash
 PackConstructorInitializers: Never
 PointerAlignment: Middle

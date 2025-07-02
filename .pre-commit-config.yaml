@@ -101,15 +101,15 @@ repos:
           --allow-past-years,
         ]
   # Ansible
-  - repo: https://github.com/ansible/ansible-lint
-    rev: v25.1.3
-    hooks:
-      - id: ansible-lint
-        entry: /bin/sh -c "ANSIBLE_COLLECTIONS_PATH=ansible/collections python3 -m ansiblelint -v --force-color ansible/"
-        always_run: false
-        files: ^ansible/
-        additional_dependencies:
-          - ansible
+  # - repo: https://github.com/ansible/ansible-lint
+  #   rev: v25.1.3
+  #   hooks:
+  #     - id: ansible-lint
+  #       entry: /bin/sh -c "ANSIBLE_COLLECTIONS_PATH=ansible/collections python3 -m ansiblelint -v --force-color ansible/"
+  #       always_run: false
+  #       files: ^ansible/
+  #       additional_dependencies:
+  #         - ansible
   # YAML
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.29.0
