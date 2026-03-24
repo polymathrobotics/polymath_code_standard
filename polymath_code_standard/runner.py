@@ -226,7 +226,7 @@ def run_group_ansible(files: list[str]) -> list[Result]:
     return [
         _check(
             'python3',
-            ['-m', 'ansiblelint', '-v', '--force-color'],
+            ['-m', 'ansiblelint', '-v', '--force-color', '-c', CONFIG_DIR / 'ansible-lint.yml'],
             files,
             name='ansible-lint',
             env={'ANSIBLE_COLLECTIONS_PATH': 'ansible/collections'},
