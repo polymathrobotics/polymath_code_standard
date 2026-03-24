@@ -1,0 +1,3 @@
+/.ruff.toml
+/*.egg-info/
+__pycache__/

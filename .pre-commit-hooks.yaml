@@ -1,0 +1,95 @@
+---
+# All hooks share identical additional_dependencies, so pre-commit creates
+# one shared virtualenv regardless of which hooks a consuming repo selects.
+#
+# The &python-hook anchor is set on the first entry and merged into every
+# subsequent hook via <<: *python-hook. Explicit fields in each hook
+# (id, name, entry, types, etc.) take precedence over the anchor.
+
+- &python-hook
+  id: polymath-general
+  name: Polymath Code Standard [general]
+  language: python
+  description: File hygiene checks that run on all staged files.
+  entry: polymath_code_standard --group general
+  types: [file]
+
+- <<: *python-hook
+  id: polymath-python
+  name: Polymath Code Standard [python]
+  description: Python checks — ruff format, ruff lint, AST validation.
+  entry: polymath_code_standard --group python
+  types: [python]
+
+- <<: *python-hook
+  id: polymath-cpp
+  name: Polymath Code Standard [cpp]
+  description: C/C++ checks — clang-format and cpplint.
+  entry: polymath_code_standard --group cpp
+  types_or: [c, c++]
+
+- <<: *python-hook
+  id: polymath-shell
+  name: Polymath Code Standard [shell]
+  description: Shell checks — shellcheck. Detects scripts by shebang, not just extension.
+  entry: polymath_code_standard --group shell
+  types: [shell]
+
+- <<: *python-hook
+  id: polymath-cmake
+  name: Polymath Code Standard [cmake]
+  description: CMake checks — cmakelint.
+  entry: polymath_code_standard --group cmake
+  types: [cmake]
+
+- <<: *python-hook
+  id: polymath-docker
+  name: Polymath Code Standard [docker]
+  description: Dockerfile checks — hadolint.
+  entry: polymath_code_standard --group docker
+  types: [dockerfile]
+
+- <<: *python-hook
+  id: polymath-markdown
+  name: Polymath Code Standard [markdown]
+  description: Markdown checks — pymarkdown.
+  entry: polymath_code_standard --group markdown
+  types: [markdown]
+
+- <<: *python-hook
+  id: polymath-xml
+  name: Polymath Code Standard [xml]
+  description: XML checks — check-xml and ament_xmllint.
+  entry: polymath_code_standard --group xml
+  types: [xml]
+
+- <<: *python-hook
+  id: polymath-yaml
+  name: Polymath Code Standard [yaml]
+  description: YAML checks — check-yaml and yamllint.
+  entry: polymath_code_standard --group yaml
+  types: [yaml]
+
+- <<: *python-hook
+  id: polymath-toml
+  name: Polymath Code Standard [toml]
+  description: TOML validation.
+  entry: polymath_code_standard --group toml
+  types: [toml]
+
+- <<: *python-hook
+  id: polymath-json
+  name: Polymath Code Standard [json]
+  description: JSON/JSON5 validation.
+  entry: polymath_code_standard --group json
+  types_or: [json, json5]
+  exclude: .*\.geojson$
+
+- <<: *python-hook
+  id: polymath-copyright
+  name: Polymath Code Standard [copyright]
+  description: >
+    Insert copyright headers. Handles all supported file types:
+    Python/CMake/Shell (# style) and C/C++ (// style).
+  entry: polymath_code_standard --group copyright
+  types: [python, cmake, shell, c, c++]
