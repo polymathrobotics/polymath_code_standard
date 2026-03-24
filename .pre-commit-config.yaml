@@ -4,7 +4,7 @@
 
 repos:
   - repo: .
-    rev: 3c178260b70bee40bbe23d77ce870fbdc0954f70
+    rev: HEAD
     hooks:
       - id: polymath-general
       - id: polymath-python
@@ -18,4 +18,3 @@ repos:
       - id: polymath-toml
       - id: polymath-json
       - id: polymath-copyright
-      - id: polymath-ansible
