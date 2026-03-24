@@ -4,7 +4,7 @@
 
 repos:
   - repo: .
-    rev: HEAD
+    rev: 3c178260b70bee40bbe23d77ce870fbdc0954f70
     hooks:
       - id: polymath-general
       - id: polymath-python
