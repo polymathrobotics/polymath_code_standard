@@ -13,7 +13,7 @@ dependencies = [
     "clang-format==19.1.7",
     "cmakelint==1.4.3",
     "cpplint==2.0.0",
-    "hadolint-py==2.14.0.1",
+    "hadolint-py>=2.14.0.1",
     "identify==2.6.18",
     "pre-commit-hooks==5.0.0",
     "pymarkdownlnt==0.9.28",
