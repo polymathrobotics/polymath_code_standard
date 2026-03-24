@@ -92,7 +92,7 @@
     Insert copyright headers. Handles all supported file types:
     Python/CMake/Shell (# style) and C/C++ (// style).
   entry: polymath_code_standard --group copyright
-  types: [python, cmake, shell, c, c++]
+  types_or: [python, cmake, shell, c, c++]
 
 - <<: *python-hook
   id: polymath-ansible
