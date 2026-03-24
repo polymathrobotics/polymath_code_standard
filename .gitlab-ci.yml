@@ -1,8 +1,11 @@
 ---
 include:
-  - component: gitlab.com/polymathrobotics/polymath_core/pre-commit@ci-1.3
+  - component: gitlab.com/polymathrobotics/polymath_core/pre-commit@ci-1.3.3
 
 build:
   stage: build
+  image: ghcr.io/astral-sh/uv:0.11.0-python3.10-trixie-slim
+  variables:
+    UV_LINK_MODE: copy
   script:
-    - echo "The project is built"
+    - uv build
