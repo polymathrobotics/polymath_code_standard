@@ -93,3 +93,10 @@
     Python/CMake/Shell (# style) and C/C++ (// style).
   entry: polymath_code_standard --group copyright
   types: [python, cmake, shell, c, c++]
+
+- <<: *python-hook
+  id: polymath-ansible
+  name: Polymath Code Standard [ansible]
+  description: Run ansible-lint with Polymath settings
+  entry: polymath_code_standard --group ansible
+  types: [file]

@@ -18,3 +18,4 @@ repos:
       - id: polymath-toml
       - id: polymath-json
       - id: polymath-copyright
+      - id: polymath-ansible
