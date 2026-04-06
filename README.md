@@ -15,7 +15,7 @@ Consuming repositories reference this repo directly via `.pre-commit-config.yaml
     ---
     repos:
       - repo: https://gitlab.com/polymathrobotics/polymath_code_standard
-        rev: v1.0.0
+        rev: v1.1.0
         hooks:
           - id: polymath-general
           - id: polymath-python
