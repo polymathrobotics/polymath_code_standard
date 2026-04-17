@@ -19,8 +19,9 @@ dependencies = [
     "pymarkdownlnt==0.9.28",
     "rapidfuzz==3.13.0",
     "ruff==0.11.5",
+    "ruyaml>=0.91.0",
     "shellcheck-py==0.10.0.1",
-    "yamllint==1.34.0",
+    "yamlfix==1.19.1",
     "ansible-lint==25.2.1",
 ]
 
@@ -29,7 +30,12 @@ dependencies = [
 "polymath_code_standard" = ["config/*",  "config/.*"]
 
 [tool.setuptools.packages.find]
-exclude = ["test_files*"]
+exclude = ["test_files*", "tests*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
 
 [project.scripts]
 polymath_code_standard = "polymath_code_standard.runner:main"
