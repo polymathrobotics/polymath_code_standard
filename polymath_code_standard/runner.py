@@ -175,8 +175,32 @@ def run_group_markdown(files: list[str]) -> list[Result]:
 
 
 def run_group_yaml(files: list[str]) -> list[Result]:
-    # pre-commit hook definition carries exclude: '\.gitlab-ci\.yml$'
-    return [_check('yamllint', ['-d', '{extends: default, rules: {line-length: {max: 256}, commas: false}}'], files)]
+    from .yaml_format import format_yaml_files
+
+    if not files:
+        return [Result(name='yamlfix', passed=True, skipped=True)]
+    errors = []
+    changed = []
+    for filepath, was_changed, error in format_yaml_files(files):
+        if error:
+            errors.append(f'{filepath}: {error}')
+        elif was_changed:
+            changed.append(filepath)
+    results = []
+    if errors:
+        results.append(Result(name='yamlfix', passed=False, output='\n'.join(errors)))
+    if changed:
+        changed_list = '\n'.join(f'  {f}' for f in changed)
+        results.append(
+            Result(
+                name='yamlfix',
+                passed=False,
+                output=f'Files reformatted — please re-stage and recommit:\n{changed_list}',
+            )
+        )
+    if not results:
+        results.append(Result(name='yamlfix', passed=True))
+    return results
 
 
 def run_group_toml(files: list[str]) -> list[Result]:
