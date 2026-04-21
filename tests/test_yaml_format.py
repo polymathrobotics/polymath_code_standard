@@ -96,6 +96,10 @@ class TestDetectMatrices:
 
 
 class TestFormatYamlNormalisation:
+    def test_empty_file(self):
+        result = format_yaml('')
+        assert result == ''
+
     def test_adds_document_start(self):
         result = format_yaml('key: value\n')
         assert result.startswith('---\n')

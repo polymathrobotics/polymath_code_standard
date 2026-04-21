@@ -306,6 +306,8 @@ def format_yaml(source: str) -> str:
 
     Raises ValueError for irregular multi-line flow sequences.
     """
+    if not source:
+        return source
     matrices = detect_matrices(source)
     fixed = fix_code(source, _yamlfix_config())
     if matrices:
