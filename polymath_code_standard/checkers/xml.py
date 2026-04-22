@@ -1,14 +1,11 @@
-# Copyright (c) 2025-present Polymath Robotics, Inc. All rights reserved
+# Copyright (c) 2026-present Polymath Robotics, Inc. All rights reserved
 # Proprietary. Any unauthorized copying, distribution, or modification of this software is strictly prohibited.
-"""
-Provide a single linter that checks XML for well-formedness and schema conformity.
-"""
-
+import argparse
 import functools
 
 from lxml import etree
 
-from .types import CONFIG_DIR, Result
+from polymath_code_standard.checker import CONFIG_DIR, CheckerGroup, Result, check_group
 
 # Schemas bundled as package resources; any other URL is fetched from the network.
 _BUNDLED_SCHEMAS: dict[str, str] = {
@@ -58,18 +55,22 @@ def _validate_xml(filepath: str) -> list[str]:
     return errors
 
 
-def run_group_xml(files: list[str]) -> list[Result]:
-    if not files:
-        return [Result(name='xml-validate', passed=True, skipped=True)]
+@check_group
+class XmlGroup(CheckerGroup):
+    name = 'xml'
 
-    all_errors = []
-    for f in files:
-        for msg in _validate_xml(f):
-            all_errors.append(f'{f}: {msg}')
-    return [
-        Result(
-            name='xml-validate',
-            passed=not all_errors,
-            output='\n'.join(all_errors),
-        )
-    ]
+    def run(self, args: argparse.Namespace) -> list[Result]:
+        if not args.files:
+            return [Result(name='xml-validate', passed=True, skipped=True)]
+
+        all_errors = []
+        for f in args.files:
+            for msg in _validate_xml(f):
+                all_errors.append(f'{f}: {msg}')
+        return [
+            Result(
+                name='xml-validate',
+                passed=not all_errors,
+                output='\n'.join(all_errors),
+            )
+        ]

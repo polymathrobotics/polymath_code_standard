@@ -18,3 +18,4 @@ repos:
       - id: polymath-toml
       - id: polymath-json
       - id: polymath-copyright
+        args: [--license, proprietary, --copyright-org, 'Polymath Robotics, Inc.']
