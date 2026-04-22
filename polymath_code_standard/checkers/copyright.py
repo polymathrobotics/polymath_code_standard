@@ -34,9 +34,16 @@ class CopyrightGroup(CheckerGroup):
             metavar='YEAR',
             help='Copyright start year (default: current year)',
         )
+        subparser.add_argument(
+            '--reuse-style',
+            action='store_true',
+            help='Force REUSE-style 2-line copyright headers, even when a standard block is available',
+        )
 
     def run(self, args: argparse.Namespace) -> list[Result]:
-        header_text = get_license_header(args.license_id, args.copyright_year, args.copyright_org)
+        header_text = get_license_header(
+            args.license_id, args.copyright_year, args.copyright_org, reuse_style_header=args.reuse_style
+        )
         py_cmake_shell = filter_files(args.files, frozenset({'python', 'cmake', 'shell'}))
         cpp = filter_files(args.files, frozenset({'c', 'c++'}))
 
