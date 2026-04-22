@@ -1,5 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Polymath Robotics, Inc.
 # SPDX-License-Identifier: Apache-2.0
+
+# Originally from https://github.com/Lucas-C/pre-commit-hooks
+# Copyright 2019 Lucas Cimon
+# Licensed under the MIT License
+
 from __future__ import annotations
 
 import argparse
