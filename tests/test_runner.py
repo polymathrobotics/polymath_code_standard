@@ -1,5 +1,5 @@
-# Copyright (c) 2026-present Polymath Robotics, Inc. All rights reserved
-# Proprietary. Any unauthorized copying, distribution, or modification of this software is strictly prohibited.
+# SPDX-FileCopyrightText: 2026 Polymath Robotics, Inc.
+# SPDX-License-Identifier: Apache-2.0
 """Smoke tests: verify runner.main dispatches to each checker and runs without error."""
 
 import shutil

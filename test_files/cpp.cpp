@@ -1,5 +1,5 @@
-// Copyright (c) 2025-present Polymath Robotics, Inc. All rights reserved
-// Proprietary. Any unauthorized copying, distribution, or modification of this software is strictly prohibited.
+// SPDX-FileCopyrightText: 2026 Polymath Robotics, Inc.
+// SPDX-License-Identifier: Apache-2.0
 
 // An example .cpp file to validate our linter settings
 #include <iostream>
