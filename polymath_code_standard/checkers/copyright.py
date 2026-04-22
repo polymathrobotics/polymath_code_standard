@@ -4,9 +4,10 @@ import argparse
 import datetime
 import os
 import tempfile
+from pathlib import Path
 
 from polymath_code_standard.checker import CheckerGroup, Result, check_group, filter_files
-from polymath_code_standard.licenses import get_license_header
+from polymath_code_standard.licenses import PROPRIETARY, get_license_full_text, get_license_header
 
 
 @check_group
@@ -51,7 +52,7 @@ class CopyrightGroup(CheckerGroup):
         try:
             os.write(fd, header_text.encode('utf-8'))
             os.close(fd)
-            return [
+            results = [
                 self._check(
                     'polymath_copyright_header',
                     [
@@ -77,3 +78,26 @@ class CopyrightGroup(CheckerGroup):
                 os.unlink(license_filepath)
             except OSError:
                 pass
+
+        results.append(self._check_license_file(args.license_id, args.copyright_year, args.copyright_org))
+        return results
+
+    @staticmethod
+    def _check_license_file(license_id: str, year: str, org: str) -> Result:
+        if license_id == PROPRIETARY:
+            return Result(name='LICENSE file', passed=True, skipped=True)
+        license_file = Path.cwd() / 'LICENSE'
+        try:
+            expected = get_license_full_text(license_id, year, org)
+        except Exception as exc:
+            return Result(name='LICENSE file', passed=False, output=str(exc))
+        current = license_file.read_text(encoding='utf-8') if license_file.exists() else None
+        if current == expected:
+            return Result(name='LICENSE file', passed=True)
+        license_file.write_text(expected, encoding='utf-8')
+        action = 'updated' if current is not None else 'created'
+        return Result(
+            name='LICENSE file',
+            passed=False,
+            output=f'LICENSE file {action} — please re-stage and recommit',
+        )
