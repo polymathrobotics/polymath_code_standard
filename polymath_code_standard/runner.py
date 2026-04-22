@@ -2,7 +2,7 @@
 # Proprietary. Any unauthorized copying, distribution, or modification of this software is strictly prohibited.
 """Polymath Code Standard pre-commit hook runner.
 
-Invoked as: polymath_code_standard --group NAME [files ...]
+Invoked as: polymath_code_standard <group> [options] [files ...]
 
 Files are pre-filtered by pre-commit's native type detection before arrival.
 """
@@ -10,6 +10,7 @@ Files are pre-filtered by pre-commit's native type detection before arrival.
 from __future__ import annotations
 
 import argparse
+import datetime
 import os
 import shutil
 import subprocess
@@ -211,39 +212,49 @@ def run_group_json(files: list[str]) -> list[Result]:
     return [_check('check-json5', [], files)]
 
 
-def run_group_copyright(files: list[str]) -> list[Result]:
+def run_group_copyright(
+    files: list[str],
+    license_id: str,
+    copyright_org: str,
+    copyright_year: str,
+) -> list[Result]:
     """Insert copyright headers, splitting by comment style."""
-    copyright_notice = str(CONFIG_DIR / 'copyright.txt')
+    from .licenses import get_license_header
+
+    header_text = get_license_header(license_id, copyright_year, copyright_org)
     py_cmake_shell = filter_files(files, frozenset({'python', 'cmake', 'shell'}))
     cpp = filter_files(files, frozenset({'c', 'c++'}))
 
-    return [
-        _check(
-            'polymath_copyright_header',
-            [
-                '--license-filepath',
-                copyright_notice,
-                '--comment-style',
-                '#',
-                '--allow-past-years',
-                '--no-extra-eol',
-            ],
-            py_cmake_shell,
-            name='copyright (py/cmake/shell)',
-        ),
-        _check(
-            'polymath_copyright_header',
-            [
-                '--license-filepath',
-                copyright_notice,
-                '--comment-style',
-                '//',
-                '--allow-past-years',
-            ],
-            cpp,
-            name='copyright (cpp)',
-        ),
-    ]
+    fd, license_filepath = tempfile.mkstemp(suffix='.txt', prefix='polymath_license_')
+    try:
+        os.write(fd, header_text.encode('utf-8'))
+        os.close(fd)
+        return [
+            _check(
+                'polymath_copyright_header',
+                [
+                    '--license-filepath',
+                    license_filepath,
+                    '--comment-style',
+                    '#',
+                    '--allow-past-years',
+                    '--no-extra-eol',
+                ],
+                py_cmake_shell,
+                name='copyright (py/cmake/shell)',
+            ),
+            _check(
+                'polymath_copyright_header',
+                ['--license-filepath', license_filepath, '--comment-style', '//', '--allow-past-years'],
+                cpp,
+                name='copyright (cpp)',
+            ),
+        ]
+    finally:
+        try:
+            os.unlink(license_filepath)
+        except OSError:
+            pass
 
 
 def run_group_ansible(files: list[str]) -> list[Result]:
@@ -260,8 +271,9 @@ def run_group_ansible(files: list[str]) -> list[Result]:
 
 # ---------------------------------------------------------------------------
 # Group registry — order matters for meta-hook output
+# copyright is excluded: it has extra required arguments and is handled separately
 # ---------------------------------------------------------------------------
-ALL_GROUPS: dict[str, object] = {
+SIMPLE_GROUPS: dict[str, object] = {
     'general': run_group_general,
     'python': run_group_python,
     'cpp': run_group_cpp,
@@ -273,7 +285,6 @@ ALL_GROUPS: dict[str, object] = {
     'yaml': run_group_yaml,
     'toml': run_group_toml,
     'json': run_group_json,
-    'copyright': run_group_copyright,
     'ansible': run_group_ansible,
 }
 
@@ -283,16 +294,41 @@ ALL_GROUPS: dict[str, object] = {
 # ---------------------------------------------------------------------------
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('files', nargs='*', help='Staged files passed by pre-commit')
-    parser.add_argument(
-        '--group',
-        choices=list(ALL_GROUPS),
+    subs = parser.add_subparsers(dest='group', required=True, metavar='GROUP')
+
+    for name in SIMPLE_GROUPS:
+        p = subs.add_parser(name, help=f'Run {name} checks')
+        p.add_argument('files', nargs='*', help='Staged files passed by pre-commit')
+
+    cp = subs.add_parser('copyright', help='Insert and verify copyright headers')
+    cp.add_argument('files', nargs='*', help='Staged files passed by pre-commit')
+    cp.add_argument(
+        '--license',
+        dest='license_id',
         required=True,
-        help='Check group to run (set by individual hook entry)',
+        metavar='SPDX_ID',
+        help="SPDX license ID (e.g. MIT, Apache-2.0) or 'proprietary'",
     )
+    cp.add_argument(
+        '--copyright-org',
+        required=True,
+        metavar='ORG',
+        help='Organization name for the copyright line',
+    )
+    cp.add_argument(
+        '--copyright-year',
+        default=str(datetime.date.today().year),
+        metavar='YEAR',
+        help='Copyright start year (default: current year)',
+    )
+
     args = parser.parse_args(argv)
 
-    results = ALL_GROUPS[args.group](args.files)
+    if args.group == 'copyright':
+        results = run_group_copyright(args.files, args.license_id, args.copyright_org, args.copyright_year)
+    else:
+        results = SIMPLE_GROUPS[args.group](args.files)
+
     failed = [r for r in results if not r.passed and not r.skipped]
     for result in failed:
         result.print()
