@@ -3,6 +3,7 @@
 import argparse
 import datetime
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -40,6 +41,11 @@ class CopyrightGroup(CheckerGroup):
             action='store_true',
             help='Force REUSE-style 2-line copyright headers, even when a standard block is available',
         )
+        subparser.add_argument(
+            '--relicense',
+            action='store_true',
+            help='Strip any existing leading comment block before inserting the new header (for relicensing)',
+        )
 
     def run(self, args: argparse.Namespace) -> list[Result]:
         header_text = get_license_header(
@@ -47,6 +53,12 @@ class CopyrightGroup(CheckerGroup):
         )
         py_cmake_shell = filter_files(args.files, frozenset({'python', 'cmake', 'shell'}))
         cpp = filter_files(args.files, frozenset({'c', 'c++'}))
+
+        if args.relicense:
+            for f in py_cmake_shell:
+                self._strip_leading_comment_block(f, '#')
+            for f in cpp:
+                self._strip_leading_comment_block(f, '//')
 
         fd, license_filepath = tempfile.mkstemp(suffix='.txt', prefix='polymath_license_')
         try:
@@ -81,6 +93,29 @@ class CopyrightGroup(CheckerGroup):
 
         results.append(self._check_license_file(args.license_id, args.copyright_year, args.copyright_org))
         return results
+
+    @staticmethod
+    def _strip_leading_comment_block(filepath: str, comment_prefix: str) -> None:
+        """Remove the leading comment block from a file, preserving shebang/coding lines.
+
+        Strips all contiguous comment lines (matching comment_prefix) starting after
+        any shebang or encoding declaration, plus one following blank line.  Used so
+        that a subsequent insert_license run can write a fresh header in their place.
+        """
+        path = Path(filepath)
+        lines = path.read_text(encoding='utf-8', errors='replace').splitlines(keepends=True)
+        idx = 0
+        if lines and lines[0].startswith('#!'):
+            idx = 1
+        if idx < len(lines) and re.match(r'#\s*-\*-\s*coding', lines[idx]):
+            idx += 1
+        block_start = idx
+        while idx < len(lines) and lines[idx].rstrip('\r\n').lstrip().startswith(comment_prefix):
+            idx += 1
+        if idx < len(lines) and not lines[idx].strip():
+            idx += 1
+        if idx > block_start:
+            path.write_text(''.join(lines[:block_start] + lines[idx:]), encoding='utf-8')
 
     @staticmethod
     def _check_license_file(license_id: str, year: str, org: str) -> Result:
