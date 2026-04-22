@@ -1,8 +1,10 @@
-# Copyright (c) 2025-present Polymath Robotics, Inc. All rights reserved
-# Proprietary. Any unauthorized copying, distribution, or modification of this software is strictly prohibited.
-# Forked from https://github.com/Lucas-C/pre-commit-hooks (MIT License)
-# Vendored to avoid PyPI package name collision with pre-commit/pre-commit-hooks.
-# Requires: rapidfuzz (listed in .pre-commit-hooks.yaml additional_dependencies)
+# SPDX-FileCopyrightText: 2026 Polymath Robotics, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Originally from https://github.com/Lucas-C/pre-commit-hooks
+# Copyright 2019 Lucas Cimon
+# Licensed under the MIT License
+
 from __future__ import annotations
 
 import argparse
