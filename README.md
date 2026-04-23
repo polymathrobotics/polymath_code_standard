@@ -1,92 +1,89 @@
 # Polymath Source Code Standard
 
-Common configuration for the [Polymath Engineering Source Code Standard](https://www.notion.so/polymathrobotics/WIP-Polymath-Engineering-Standard-18fc0b1ac5fa80e3ae55c38cd4d0ef08?pvs=4#193c0b1ac5fa8002b88ccaaf44095396) -- see that document for more details.
+Pre-commit hooks that enforce the Polymath Robotics Engineering formatting and linting standard for a variety of languages.
+
+This is a low-configuration, highly opinionated set of hooks that take the guesswork out of formatting.
 
 One check is provided per file type, with all necessary settings bundled within the hook.
 Consuming repositories reference this repo directly via `.pre-commit-config.yaml` -- no config files need to be copied or kept in sync.
 
-## Applying this standard to a repository
+# Usage
 
-1. Create a `.pre-commit-config.yaml` in the target repository root with the following content,
-   updating `rev` to the latest release tag.
-   Remove any hook IDs that don't apply to your repo's languages.
+## Prerequisites
 
-    ```yaml
-    ---
-    repos:
-      - repo: https://gitlab.com/polymathrobotics/polymath_code_standard
-        rev: v1.1.1
-        hooks:
-          - id: polymath-general
-          - id: polymath-python
-          - id: polymath-cpp
-          - id: polymath-shell
-          - id: polymath-cmake
-          - id: polymath-docker
-          - id: polymath-markdown
-          - id: polymath-xml
-          - id: polymath-yaml
-          - id: polymath-toml
-          - id: polymath-json
-          - id: polymath-copyright
-    ```
+> [!NOTE]
+> You may want to add the following text from this prerequisites section to your own repository's `README.md`!
 
-1. Install the hook:
+Install [pre-commit](https://pre-commit.com).
+While there are several ways to do this, our favorit is with [uv](https://github.com/astral-sh/uv) - it's "scary fast".
 
-    ```sh
-    pre-commit install
-    ```
+```shell
+uv tool install --with pre-commit-uv pre-commit
+```
 
-1. Add the following block to the "Getting Started" or "Setup" section of the target repository's `README.md`:
+Set up pre-commit hooks in the repository:
 
-    ````markdown
-    ### Code Standard Hooks
+```shell
+pre-commit install
+```
 
-    [Pre-commit](https://pre-commit.com) hooks enforce the Polymath code standard on every commit.
+### Hooks
 
-    1. Install pre-commit if you don't have it (highly recommended to use `pipx` and the uv-injection to speed it up)
-       ```bash
-       pipx install pre-commit
-       pipx inject pre-commit pre-commit-uv
-       ```
-    1. Install the hooks: `pre-commit install`
+In your repository's `.pre-commit-config.yaml`, use these hooks.
+See the following for a list of all available hooks.
+Feel free to use only the ones that apply to your usage.
 
-    Commits are now automatically gated by the configured checks.
-    You can also run all checks manually with `pre-commit run --all-files`.
-    ````
+```yaml
+---
+repos:
+    - repo: https://github.com/polymathrobotics/polymath_code_standard
+    rev: v2.0.0
+    hooks:
+        # Basic checks and fixes that apply to any text file and the git repository itself
+        - id: polymath-general
+        # Enforce and insert copyright headers in source code for the project's license
+        - id: polymath-copyright
+        args: [--license, <SPDX_ID or 'proprietary'>, --copyright-org, <organization name>]
+        # Specific languages
+        - id: polymath-python
+        - id: polymath-cpp
+        - id: polymath-shell
+        - id: polymath-cmake
+        - id: polymath-docker
+        - id: polymath-markdown
+        - id: polymath-xml
+        - id: polymath-yaml
+        - id: polymath-toml
+        - id: polymath-json
+```
 
-1. Add the following to `.gitlab-ci.yml` (merge into an existing `include:` section if present):
+## First-time use
 
-    ```yaml
-    include:
-      - component: gitlab.com/polymathrobotics/polymath_core/pre-commit@ci-1.3
-    ```
+Apply your newly configured hooks to all sources with the following.
+You should also do this whenever you update to a newer version.
 
-1. Apply to pre-existing sources:
+```shell
+pre-commit run --all-files
+```
 
-    ```sh
-    pre-commit run --all-files
-    ```
+You may now want to stage the new changes, then run again to check for any failures that require manual correction.
 
-    Some checks auto-fix files (formatters, copyright headers).
-    Review the changes, then `git add` and recommit.
-    Use `--all-files` again until all checks pass.
+> [!NOTE]
+> These formatters are likely not compatible with other formatting standards, for example in ROS you will now want to remove `ament_lint` in favor of these hooks.
 
-1. (ROS only) Remove `ament_lint_common` and individual ament linters from `package.xml`
-   and `CMakeLists.txt` -- the Polymath formatters supersede the ROS 2 core style.
+> [!NOTE]
+> After a large reformatting pass, add the commit hash to `.git-blame-ignore-revs` so that `git blame` points back to the original authors rather than the reformatting commit.
 
-1. After a large reformatting pass, add the commit hash to `.git-blame-ignore-revs` so
-   that `git blame` points back to the original authors rather than the reformatting commit.
+## CI
 
-## Upgrading
+See [.github/workflows/test.yml](./.github/workflows/test.yml) for a simple GitHub Actions configuration that runs pre-commit hooks.
 
-When this repository releases a new version, update `rev` in the consuming repo's
-`.pre-commit-config.yaml` and run `pre-commit run --all-files` to apply any new rules.
+## Updates
 
 Releases follow semantic versioning:
-- **Patch** -- dependency version bumps, no behavior change
-- **Minor** -- new checks or stricter rules (may require fixing existing code)
-- **Major** -- removed checks or breaking changes to existing behavior
+- **Patch** -- bugfixes or nonfunctional dependency updates, must not require any manual changes from user
+- **Minor** -- new checks, formatting changes, or new linting checks. May require fixing existing code.
+- **Major** -- removed checks or other breaking changes to existing API
 
 ## Notes
 
