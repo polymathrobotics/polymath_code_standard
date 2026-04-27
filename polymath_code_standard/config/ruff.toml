@@ -1,5 +1,5 @@
-# Python rules for Polymath Code Standard - https://gitlab.com/polymathrobotics/polymath_code_standard
-# Synced from origin - DO NOT EDIT IN CONSUMING REPOSITORY
+# Python rules for Polymath Code Standard
+# Synced here automatically by pre-commit tooling, add to .gitignore
 
 line-length = 120
 indent-width = 4
