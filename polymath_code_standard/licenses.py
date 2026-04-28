@@ -67,12 +67,15 @@ def get_license_header(spdx_id: str, year: str, org: str, *, reuse_style_header:
         return f'SPDX-FileCopyrightText: {year} {org}\nSPDX-License-Identifier: {spdx_id}\n'
     data = _get_spdx_data(spdx_id)
     raw = data.get('standardLicenseHeader') or data['licenseText']
-    return _substitute(raw, year, org)
+    return _substitute(raw, year, org).rstrip('\n') + '\n'
 
 
 def get_license_full_text(spdx_id: str, year: str, org: str) -> str:
     """Return the full LICENSE file text."""
     if spdx_id == PROPRIETARY:
         raise ValueError("'proprietary' licenses do not have a LICENSE file")
+    bundled = _CONFIG_DIR / f'{spdx_id}.txt'
+    if bundled.exists():
+        return _substitute(bundled.read_text(encoding='utf-8'), year, org)
     data = _get_spdx_data(spdx_id)
     return _substitute(data['licenseText'], year, org)

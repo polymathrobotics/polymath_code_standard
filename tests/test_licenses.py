@@ -21,6 +21,7 @@ _APACHE_DATA = {
         'Copyright [yyyy] [name of copyright owner]\n\n'
         'Licensed under the Apache License, Version 2.0 (the "License");\n'
         'you may not use this file except in compliance with the License.\n'
+        '\n'
     ),
 }
 
@@ -121,6 +122,12 @@ class TestGetLicenseHeaderFetched:
         assert 'Acme Corp' in result
         assert '<copyright holders>' not in result
 
+    def test_strips_trailing_blank_lines(self):
+        with _mock_fetch(_APACHE_DATA):
+            result = get_license_header('Apache-2.0', '2024', 'Acme Corp', reuse_style_header=False)
+        assert result.endswith('\n')
+        assert not result.endswith('\n\n')
+
     def test_unknown_id_raises(self):
         with _mock_fetch_404(), pytest.raises(ValueError, match='UNKNOWN-1.0'):
             get_license_header('UNKNOWN-1.0', '2024', 'Acme Corp', reuse_style_header=False)
@@ -169,3 +176,14 @@ class TestGetLicenseFullText:
     def test_unknown_id_raises(self):
         with _mock_fetch_404(), pytest.raises(ValueError, match='UNKNOWN-1.0'):
             get_license_full_text('UNKNOWN-1.0', '2024', 'Acme Corp')
+
+    def test_bundled_apache_uses_canonical_formatting(self):
+        with patch('polymath_code_standard.licenses._fetch_spdx_json') as mock_fetch:
+            result = get_license_full_text('Apache-2.0', '2024', 'Acme Corp')
+        mock_fetch.assert_not_called()
+        assert '                                 Apache License' in result
+
+    def test_bundled_takes_precedence_over_spdx(self):
+        with patch('polymath_code_standard.licenses._fetch_spdx_json') as mock_fetch:
+            get_license_full_text('Apache-2.0', '2024', 'Acme Corp')
+        mock_fetch.assert_not_called()
