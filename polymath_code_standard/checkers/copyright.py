@@ -8,6 +8,7 @@ import tempfile
 from pathlib import Path
 
 from polymath_code_standard.checker import CheckerGroup, Result, check_group, filter_files
+from polymath_code_standard.insert_license import COPYRIGHT_ORG_SENTINEL
 from polymath_code_standard.licenses import PROPRIETARY, get_license_full_text, get_license_header
 
 
@@ -24,11 +25,22 @@ class CopyrightGroup(CheckerGroup):
             metavar='SPDX_ID',
             help="SPDX license ID (e.g. MIT, Apache-2.0) or 'proprietary'",
         )
-        subparser.add_argument(
+        org_group = subparser.add_mutually_exclusive_group(required=True)
+        org_group.add_argument(
             '--copyright-org',
-            required=True,
+            default=None,
             metavar='ORG',
             help='Organization name for the copyright line',
+        )
+        org_group.add_argument(
+            '--wildcard-copyright-org',
+            action='store_true',
+            dest='wildcard_copyright_org',
+            help=(
+                'Accept any copyright holder on the copyright line (for multi-contributor repos). '
+                f'New headers are inserted with the sentinel "{COPYRIGHT_ORG_SENTINEL}" '
+                "which fails the check until replaced with the contributor's organization."
+            ),
         )
         subparser.add_argument(
             '--copyright-year',
@@ -48,8 +60,9 @@ class CopyrightGroup(CheckerGroup):
         )
 
     def run(self, args: argparse.Namespace) -> list[Result]:
+        insert_org = COPYRIGHT_ORG_SENTINEL if args.wildcard_copyright_org else args.copyright_org
         header_text = get_license_header(
-            args.license_id, args.copyright_year, args.copyright_org, reuse_style_header=args.reuse_style
+            args.license_id, args.copyright_year, insert_org, reuse_style_header=args.reuse_style
         )
         py_cmake_shell = filter_files(args.files, frozenset({'python', 'cmake', 'shell'}))
         cpp = filter_files(args.files, frozenset({'c', 'c++'}))
@@ -60,6 +73,7 @@ class CopyrightGroup(CheckerGroup):
             for f in cpp:
                 self._strip_leading_comment_block(f, '//')
 
+        wildcard_flag = ['--wildcard-copyright-org'] if args.wildcard_copyright_org else []
         fd, license_filepath = tempfile.mkstemp(suffix='.txt', prefix='polymath_license_')
         try:
             os.write(fd, header_text.encode('utf-8'))
@@ -74,13 +88,15 @@ class CopyrightGroup(CheckerGroup):
                         '#',
                         '--allow-past-years',
                         '--no-extra-eol',
-                    ],
+                    ]
+                    + wildcard_flag,
                     py_cmake_shell,
                     name='copyright (py/cmake/shell)',
                 ),
                 self._check(
                     'polymath_copyright_header',
-                    ['--license-filepath', license_filepath, '--comment-style', '//', '--allow-past-years'],
+                    ['--license-filepath', license_filepath, '--comment-style', '//', '--allow-past-years']
+                    + wildcard_flag,
                     cpp,
                     name='copyright (cpp)',
                 ),
@@ -91,7 +107,7 @@ class CopyrightGroup(CheckerGroup):
             except OSError:
                 pass
 
-        results.append(self._check_license_file(args.license_id, args.copyright_year, args.copyright_org))
+        results.append(self._check_license_file(args.license_id, args.copyright_year, args.copyright_org or ''))
         return results
 
     @staticmethod
