@@ -471,7 +471,8 @@ def find_license_header_index(
 
 def _is_copyright_line(stripped_line: str) -> bool:
     """Return True if a stripped line is a copyright attribution (any comment style)."""
-    return stripped_line.lstrip('/#').lstrip().lower().startswith('copyright')
+    normalized = stripped_line.lstrip('/#').lstrip().lower()
+    return normalized.startswith('copyright') or normalized.startswith('spdx-filecopyrighttext')
 
 
 def copyright_sentinel_found(src_file_content, top_lines_count):
