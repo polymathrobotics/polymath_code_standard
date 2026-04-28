@@ -43,7 +43,7 @@ repos:
         - id: polymath-general
         # Enforce and insert copyright headers in source code for the project's license
         - id: polymath-copyright
-        args: [--license, <SPDX_ID or 'proprietary'>, --copyright-org, <organization name>]
+          args: [--license, <SPDX_ID or 'proprietary'>, --copyright-org, <organization name>]
         # Specific languages
         - id: polymath-python
         - id: polymath-cpp
