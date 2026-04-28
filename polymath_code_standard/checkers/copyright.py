@@ -107,7 +107,10 @@ class CopyrightGroup(CheckerGroup):
             except OSError:
                 pass
 
-        results.append(self._check_license_file(args.license_id, args.copyright_year, args.copyright_org or ''))
+        if args.wildcard_copyright_org:
+            results.append(Result(name='LICENSE file', passed=True, skipped=True))
+        else:
+            results.append(self._check_license_file(args.license_id, args.copyright_year, args.copyright_org or ''))
         return results
 
     @staticmethod

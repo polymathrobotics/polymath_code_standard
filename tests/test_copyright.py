@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Tests for CopyrightGroup._check_license_file and _strip_leading_comment_block."""
 
+import argparse
 from unittest.mock import patch
 
 from polymath_code_standard.checkers.copyright import CopyrightGroup
@@ -72,6 +73,29 @@ class TestCheckLicenseFile:
             result = _check('BOGUS', '2024', 'Test Corp')
         assert not result.passed
         assert 'BOGUS' in result.output
+
+
+class TestWildcardOrgSkipsLicenseFile:
+    def test_license_file_not_modified_with_wildcard_org(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        license_file = tmp_path / 'LICENSE'
+        original_content = 'Apache License 2.0\n\nCopyright Acme Corp\n'
+        license_file.write_text(original_content)
+
+        args = argparse.Namespace(
+            license_id='Apache-2.0',
+            copyright_year='2026',
+            copyright_org=None,
+            wildcard_copyright_org=True,
+            reuse_style=True,
+            relicense=False,
+            files=[],
+        )
+        with patch.object(CopyrightGroup, '_check_license_file') as mock_check:
+            CopyrightGroup().run(args)
+            mock_check.assert_not_called()
+
+        assert license_file.read_text() == original_content
 
 
 _strip = CopyrightGroup._strip_leading_comment_block

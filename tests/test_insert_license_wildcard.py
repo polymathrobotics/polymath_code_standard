@@ -70,6 +70,15 @@ class TestIsCopyrightLine:
     def test_blank_comment(self):
         assert not _is_copyright_line('#')
 
+    def test_reuse_spdx_hash_style(self):
+        assert _is_copyright_line('# SPDX-FileCopyrightText: 2026 Acme Corp')
+
+    def test_reuse_spdx_slash_style(self):
+        assert _is_copyright_line('// SPDX-FileCopyrightText: 2026 Acme Corp')
+
+    def test_reuse_spdx_license_identifier_is_not_copyright(self):
+        assert not _is_copyright_line('# SPDX-License-Identifier: Apache-2.0')
+
 
 # ---------------------------------------------------------------------------
 # _license_line_matches — wildcard_copyright_org
@@ -227,6 +236,34 @@ class TestMainWildcard:
         ])
         assert ret == 1
         assert COPYRIGHT_ORG_SENTINEL in src.read_text()
+
+    def test_reuse_style_replaced_org_not_duplicated(self, tmp_path):
+        """After replacing the sentinel in a REUSE-style header, re-running should not insert a duplicate."""
+        reuse_license_text = (
+            f'SPDX-FileCopyrightText: 2026 {COPYRIGHT_ORG_SENTINEL}\nSPDX-License-Identifier: Apache-2.0\n'
+        )
+        lf = tmp_path / 'license.txt'
+        lf.write_text(reuse_license_text, encoding='utf-8')
+
+        # File already has the sentinel replaced with a real org
+        src = self._write(
+            tmp_path,
+            'f.py',
+            '# SPDX-FileCopyrightText: 2026 My Org\n# SPDX-License-Identifier: Apache-2.0\nimport foo\n',
+        )
+        original = src.read_text()
+        ret = main([
+            '--license-filepath',
+            str(lf),
+            '--comment-style',
+            '#',
+            '--allow-past-years',
+            '--no-extra-eol',
+            '--wildcard-copyright-org',
+            str(src),
+        ])
+        assert ret == 0
+        assert src.read_text() == original
 
     def test_without_wildcard_rejects_different_org(self, tmp_path):
         src = self._write(tmp_path, 'f.py', ''.join(_file_with_header('Contributor Corp.')))
