@@ -36,25 +36,25 @@ Feel free to use only the ones that apply to your usage.
 ```yaml
 ---
 repos:
-    - repo: https://github.com/polymathrobotics/polymath_code_standard
+  - repo: https://github.com/polymathrobotics/polymath_code_standard
     rev: v2.0.1
     hooks:
-        # Basic checks and fixes that apply to any text file and the git repository itself
-        - id: polymath-general
-        # Enforce and insert copyright headers in source code for the project's license
-        - id: polymath-copyright
-          args: [--license, <SPDX_ID or 'proprietary'>, --copyright-org, <organization name>]
-        # Specific languages
-        - id: polymath-python
-        - id: polymath-cpp
-        - id: polymath-shell
-        - id: polymath-cmake
-        - id: polymath-docker
-        - id: polymath-markdown
-        - id: polymath-xml
-        - id: polymath-yaml
-        - id: polymath-toml
-        - id: polymath-json
+      # Basic checks and fixes that apply to any text file and the git repository itself
+      - id: polymath-general
+      # Enforce and insert copyright headers in source code for the project's license
+      - id: polymath-copyright
+        args: [--license, <SPDX_ID or 'proprietary'>, --copyright-org, <organization name>]
+      # Specific languages
+      - id: polymath-python
+      - id: polymath-cpp
+      - id: polymath-shell
+      - id: polymath-cmake
+      - id: polymath-docker
+      - id: polymath-markdown
+      - id: polymath-xml
+      - id: polymath-yaml
+      - id: polymath-toml
+      - id: polymath-json
 ```
 
 ## First-time use
