@@ -26,6 +26,8 @@ FUZZY_MATCH_EXTRA_LINES_TO_CHECK = 3
 
 SKIP_LICENSE_INSERTION_COMMENT = 'SKIP LICENSE INSERTION'
 
+COPYRIGHT_ORG_SENTINEL = 'SET_YOUR_ORGANIZATION_HERE'
+
 DEBUG_LEVENSHTEIN_DISTANCE_CALCULATION = False
 
 LicenseInfo = collections.namedtuple(
@@ -89,6 +91,16 @@ def main(argv=None) -> int:
         help="Insert license after line matching regex (ex: '^<\\?php$')",
     )
     parser.add_argument('--remove-header', action='store_true')
+    parser.add_argument(
+        '--wildcard-copyright-org',
+        action='store_true',
+        dest='wildcard_copyright_org',
+        help=(
+            'Accept any copyright holder on the copyright line. '
+            f'New headers are inserted with the sentinel "{COPYRIGHT_ORG_SENTINEL}" '
+            'which fails the check until replaced.'
+        ),
+    )
     parser.add_argument(
         '--use-current-year',
         action='store_true',
@@ -194,6 +206,15 @@ def process_files(
             top_lines_count=args.detect_license_in_X_top_lines,
         ):
             continue
+        if args.wildcard_copyright_org and copyright_sentinel_found(
+            src_file_content, args.detect_license_in_X_top_lines
+        ):
+            print(
+                f'{src_filepath}: copyright org placeholder "{COPYRIGHT_ORG_SENTINEL}" '
+                'not yet replaced — update the copyright line with your organization name'
+            )
+            license_update_failed = True
+            continue
         if fail_license_todo_found(
             src_file_content=src_file_content,
             fuzzy_match_todo_comment=args.fuzzy_match_todo_comment,
@@ -210,6 +231,7 @@ def process_files(
                 license_info=license_info,
                 top_lines_count=args.detect_license_in_X_top_lines,
                 match_years_strictly=not args.allow_past_years,
+                wildcard_copyright_org=args.wildcard_copyright_org,
             )
             if license_header_index is not None:
                 break
@@ -421,28 +443,42 @@ def _strip_years(line):
     return _YEARS_PATTERN.sub('', line)
 
 
-def _license_line_matches(license_line, src_file_line, match_years_strictly):
+def _license_line_matches(license_line, src_file_line, match_years_strictly, wildcard_copyright_org=False):
     license_line = license_line.strip()
     src_file_line = src_file_line.strip()
+    if wildcard_copyright_org and _is_copyright_line(license_line):
+        return _is_copyright_line(src_file_line)
     if match_years_strictly:
         return license_line == src_file_line
     return _strip_years(license_line) == _strip_years(src_file_line)
 
 
 def find_license_header_index(
-    src_file_content, license_info: LicenseInfo, top_lines_count, match_years_strictly
+    src_file_content, license_info: LicenseInfo, top_lines_count, match_years_strictly, wildcard_copyright_org=False
 ) -> int | None:
     for i in range(top_lines_count):
         license_match = True
         for j, license_line in enumerate(license_info.prefixed_license):
             if i + j >= len(src_file_content) or not _license_line_matches(
-                license_line, src_file_content[i + j], match_years_strictly
+                license_line, src_file_content[i + j], match_years_strictly, wildcard_copyright_org
             ):
                 license_match = False
                 break
         if license_match:
             return i
     return None
+
+
+def _is_copyright_line(stripped_line: str) -> bool:
+    """Return True if a stripped line is a copyright attribution (any comment style)."""
+    return stripped_line.lstrip('/#').lstrip().lower().startswith('copyright')
+
+
+def copyright_sentinel_found(src_file_content, top_lines_count):
+    for i in range(min(top_lines_count, len(src_file_content))):
+        if COPYRIGHT_ORG_SENTINEL in src_file_content[i]:
+            return True
+    return False
 
 
 def skip_license_insert_found(src_file_content, skip_license_insertion_comment, top_lines_count):
