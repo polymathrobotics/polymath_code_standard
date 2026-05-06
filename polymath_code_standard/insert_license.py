@@ -262,6 +262,10 @@ def process_files(
             except LicenseUpdateError as error:
                 print(error)
                 license_update_failed = True
+        elif args.wildcard_copyright_org and any_copyright_line_found(
+            src_file_content, args.detect_license_in_X_top_lines
+        ):
+            pass  # existing attribution in a different format — leave the file untouched
         else:
             if fuzzy_match_header_index is not None:
                 if fuzzy_license_found(
@@ -437,10 +441,21 @@ def fuzzy_license_found(
 
 
 _YEARS_PATTERN = re.compile(r'\b\d{4}([ ,-]+\d{2,4})*\b')
+_COPYRIGHT_C_PATTERN = re.compile(r'\(c\)\s*', re.IGNORECASE)
+_YEAR_PRESENT_PATTERN = re.compile(r'(\b\d{4})-present\b', re.IGNORECASE)
+_ALL_RIGHTS_RESERVED_PATTERN = re.compile(r'[.,]?\s*\ball rights reserved\.?\s*', re.IGNORECASE)
 
 
 def _strip_years(line):
     return _YEARS_PATTERN.sub('', line)
+
+
+def _normalize_copyright_line(line: str) -> str:
+    """Strip cosmetic decorators from a copyright line for loose comparison."""
+    line = _COPYRIGHT_C_PATTERN.sub('', line)
+    line = _YEAR_PRESENT_PATTERN.sub(r'\1', line)
+    line = _ALL_RIGHTS_RESERVED_PATTERN.sub('', line)
+    return ' '.join(line.split())
 
 
 def _license_line_matches(license_line, src_file_line, match_years_strictly, wildcard_copyright_org=False):
@@ -448,6 +463,9 @@ def _license_line_matches(license_line, src_file_line, match_years_strictly, wil
     src_file_line = src_file_line.strip()
     if wildcard_copyright_org and _is_copyright_line(license_line):
         return _is_copyright_line(src_file_line)
+    if _is_copyright_line(license_line):
+        license_line = _normalize_copyright_line(license_line)
+        src_file_line = _normalize_copyright_line(src_file_line)
     if match_years_strictly:
         return license_line == src_file_line
     return _strip_years(license_line) == _strip_years(src_file_line)
@@ -478,6 +496,13 @@ def _is_copyright_line(stripped_line: str) -> bool:
 def copyright_sentinel_found(src_file_content, top_lines_count):
     for i in range(min(top_lines_count, len(src_file_content))):
         if COPYRIGHT_ORG_SENTINEL in src_file_content[i]:
+            return True
+    return False
+
+
+def any_copyright_line_found(src_file_content, top_lines_count):
+    for i in range(min(top_lines_count, len(src_file_content))):
+        if _is_copyright_line(src_file_content[i].strip()):
             return True
     return False
 

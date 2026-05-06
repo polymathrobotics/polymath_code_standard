@@ -7,6 +7,8 @@ from polymath_code_standard.insert_license import (
     LicenseInfo,
     _is_copyright_line,
     _license_line_matches,
+    _normalize_copyright_line,
+    any_copyright_line_found,
     copyright_sentinel_found,
     find_license_header_index,
     main,
@@ -81,6 +83,76 @@ class TestIsCopyrightLine:
 
 
 # ---------------------------------------------------------------------------
+# _normalize_copyright_line
+# ---------------------------------------------------------------------------
+
+
+class TestNormalizeCopyrightLine:
+    def test_strips_c_symbol(self):
+        assert _normalize_copyright_line('# Copyright (c) 2026 Acme Corp') == '# Copyright 2026 Acme Corp'
+
+    def test_strips_c_symbol_uppercase(self):
+        assert _normalize_copyright_line('# Copyright (C) 2026 Acme Corp') == '# Copyright 2026 Acme Corp'
+
+    def test_strips_present_suffix(self):
+        assert _normalize_copyright_line('# Copyright 2025-present Acme Corp') == '# Copyright 2025 Acme Corp'
+
+    def test_strips_all_rights_reserved(self):
+        assert (
+            _normalize_copyright_line('# Copyright 2026 Acme Corp. All rights reserved') == '# Copyright 2026 Acme Corp'
+        )
+
+    def test_strips_all_combined(self):
+        result = _normalize_copyright_line('// Copyright (c) 2025-present Acme Corp. All rights reserved')
+        assert result == '// Copyright 2025 Acme Corp'
+
+    def test_leaves_plain_line_unchanged(self):
+        assert _normalize_copyright_line('# Copyright 2026 Acme Corp') == '# Copyright 2026 Acme Corp'
+
+
+# ---------------------------------------------------------------------------
+# _license_line_matches — copyright decoration tolerance (no wildcard needed)
+# ---------------------------------------------------------------------------
+
+
+class TestLicenseLineMatchesDecoration:
+    def test_c_symbol_matches_plain_template(self):
+        assert _license_line_matches(
+            '// Copyright 2026 Acme Corp',
+            '// Copyright (c) 2026 Acme Corp',
+            match_years_strictly=False,
+        )
+
+    def test_present_suffix_matches_plain_template(self):
+        assert _license_line_matches(
+            '// Copyright 2026 Acme Corp',
+            '// Copyright 2025-present Acme Corp',
+            match_years_strictly=False,
+        )
+
+    def test_all_rights_reserved_matches_plain_template(self):
+        assert _license_line_matches(
+            '// Copyright 2026 Acme Corp',
+            '// Copyright 2026 Acme Corp. All rights reserved',
+            match_years_strictly=False,
+        )
+
+    def test_all_decorations_combined(self):
+        assert _license_line_matches(
+            '// Copyright 2026 Acme Corp',
+            '// Copyright (c) 2025-present Acme Corp. All rights reserved',
+            match_years_strictly=False,
+        )
+
+    def test_wrong_org_still_fails(self):
+        assert not _license_line_matches(
+            '// Copyright 2026 Acme Corp',
+            '// Copyright (c) 2025-present Other Corp. All rights reserved',
+            match_years_strictly=False,
+        )
+
+
+# ---------------------------------------------------------------------------
 # _license_line_matches — wildcard_copyright_org
 # ---------------------------------------------------------------------------
 
@@ -136,6 +208,33 @@ class TestCopyrightSentinelFound:
     def test_sentinel_beyond_top_lines_not_detected(self):
         content = ['import foo\n', 'import bar\n', f'# {COPYRIGHT_ORG_SENTINEL}\n']
         assert not copyright_sentinel_found(content, top_lines_count=2)
+
+
+# ---------------------------------------------------------------------------
+# any_copyright_line_found
+# ---------------------------------------------------------------------------
+
+
+class TestAnyCopyrightLineFound:
+    def test_finds_standard_copyright(self):
+        content = ['# Copyright (c) 2025-present Acme Corp. All rights reserved\n', 'import foo\n']
+        assert any_copyright_line_found(content, top_lines_count=5)
+
+    def test_finds_cpp_style(self):
+        content = ['// Copyright (c) 2025-present Acme Corp. All rights reserved\n', 'int x;\n']
+        assert any_copyright_line_found(content, top_lines_count=5)
+
+    def test_not_found_in_plain_code(self):
+        content = ['import foo\n', 'x = 1\n']
+        assert not any_copyright_line_found(content, top_lines_count=5)
+
+    def test_sentinel_line_also_counts(self):
+        content = [f'# Copyright 2026 {COPYRIGHT_ORG_SENTINEL}\n']
+        assert any_copyright_line_found(content, top_lines_count=5)
+
+    def test_beyond_top_lines_not_found(self):
+        content = ['import foo\n', 'import bar\n', '# Copyright 2026 Acme\n']
+        assert not any_copyright_line_found(content, top_lines_count=2)
 
 
 # ---------------------------------------------------------------------------
@@ -280,3 +379,52 @@ class TestMainWildcard:
         ])
         assert ret == 1
         assert src.read_text() != original
+
+    def test_single_line_copyright_passes_with_wildcard(self, tmp_path):
+        # Existing repos often have a condensed copyright line without the full license block
+        content = '// Copyright (c) 2025-present Polymath Robotics, Inc. All rights reserved\nint x = 0;\n'
+        src = self._write(tmp_path, 'f.cpp', content)
+        lf = self._license_file(tmp_path)
+        ret = main([
+            '--license-filepath',
+            lf,
+            '--comment-style',
+            '//',
+            '--allow-past-years',
+            '--wildcard-copyright-org',
+            str(src),
+        ])
+        assert ret == 0
+        assert src.read_text() == content  # file untouched
+
+    def test_single_line_copyright_with_sentinel_still_fails(self, tmp_path):
+        content = f'// Copyright (c) 2025-present {COPYRIGHT_ORG_SENTINEL}\nint x = 0;\n'
+        src = self._write(tmp_path, 'f.cpp', content)
+        lf = self._license_file(tmp_path)
+        ret = main([
+            '--license-filepath',
+            lf,
+            '--comment-style',
+            '//',
+            '--allow-past-years',
+            '--wildcard-copyright-org',
+            str(src),
+        ])
+        assert ret == 1
+        assert src.read_text() == content  # file still untouched (sentinel check doesn't modify)
+
+    def test_no_copyright_at_all_inserts_sentinel(self, tmp_path):
+        content = 'int x = 0;\n'
+        src = self._write(tmp_path, 'f.cpp', content)
+        lf = self._license_file(tmp_path)
+        ret = main([
+            '--license-filepath',
+            lf,
+            '--comment-style',
+            '//',
+            '--allow-past-years',
+            '--wildcard-copyright-org',
+            str(src),
+        ])
+        assert ret == 1
+        assert COPYRIGHT_ORG_SENTINEL in src.read_text()
