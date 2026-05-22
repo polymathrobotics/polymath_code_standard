@@ -301,6 +301,19 @@ def apply_matrices(source: str, matrices: dict[str, int]) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _strip_trailing_whitespace(text: str) -> str:
+    """Strip trailing whitespace from each line, preserving newlines.
+
+    Why: yamlfix emits an empty list item as ``- `` (dash + trailing space).
+    The pre-commit ``trailing-whitespace`` hook would then fight this hook
+    in a loop. Stripping line-trailing whitespace here makes our output a
+    fixed point for both hooks. Safe in YAML: literal/folded block scalars
+    have their per-line trailing whitespace stripped by the parser anyway,
+    and other contexts never carry meaningful trailing spaces.
+    """
+    return '\n'.join(line.rstrip() for line in text.split('\n'))
+
+
 def format_yaml(source: str) -> str:
     """Format YAML source, preserving matrix-structured flow sequences.
 
@@ -312,7 +325,7 @@ def format_yaml(source: str) -> str:
     fixed = fix_code(source, _yamlfix_config())
     if matrices:
         fixed = apply_matrices(fixed, matrices)
-    return fixed
+    return _strip_trailing_whitespace(fixed)
 
 
 def format_yaml_files(files: list[str]) -> list[tuple[str, bool, str]]:

@@ -116,6 +116,21 @@ class TestFormatYamlNormalisation:
         result = format_yaml('tags: [a, b, c]\n')
         assert '[a, b, c]' in result
 
+    def test_empty_list_item_has_no_trailing_space(self):
+        # yamlfix emits empty list items as '- ' (dash + space). The
+        # trailing-whitespace hook would then undo it, leading to a hook
+        # fight. format_yaml must produce a fixed point: bare '-'.
+        source = textwrap.dedent("""\
+            items:
+              -
+              -
+              - x
+        """)
+        result = format_yaml(source)
+        for i, line in enumerate(result.splitlines()):
+            assert line == line.rstrip(), f'trailing whitespace on line {i}: {line!r}'
+        assert '\n  -\n  -\n  - x\n' in result
+
 
 # ---------------------------------------------------------------------------
 # format_yaml — matrix preservation
