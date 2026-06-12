@@ -2,16 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 """Require an explicit thread count for multi-threaded rclcpp executors.
 
-A default-constructed MultiThreadedExecutor (or EventsCBGExecutor) runs
-``std::thread::hardware_concurrency()`` threads, which on our hosts is one
-thread per core regardless of how many callback groups the node actually has.
-Both ctors take ``number_of_threads`` as the second positional argument, so an
-explicit, bounded count requires the two-arg form
-``Type(rclcpp::ExecutorOptions(), N)``. ``0`` is rejected — it is the
-hardware_concurrency default spelled out.
+A default-constructed MultiThreadedExecutor / EventsCBGExecutor spawns
+``hardware_concurrency()`` threads (one per core).
+Their constructors take ``number_of_threads`` as the 2nd
+positional arg, so a bounded count needs ``Type(rclcpp::ExecutorOptions(), N)``;
+``0`` defaults to std::hardware_concurrency, so is disallowed.
 
-Detection is regex + balanced-paren parsing, not a full parser; suppress a
-false positive with a trailing ``// NOLINT`` on the construction line.
+Detection is heuristic (regex + balanced-paren parsing).
+To suppress, use a trailing ``// NOLINT``.
 """
 
 import re
