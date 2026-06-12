@@ -49,6 +49,7 @@ repos:
       # Specific languages
       - id: polymath-python
       - id: polymath-cpp
+      - id: polymath-ros
       - id: polymath-shell
       - id: polymath-cmake
       - id: polymath-docker

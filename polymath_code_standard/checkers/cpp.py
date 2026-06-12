@@ -8,7 +8,6 @@ import tempfile
 from pathlib import Path
 
 from polymath_code_standard.checker import CONFIG_DIR, CheckerGroup, Result, check_group
-from polymath_code_standard.executor_lint import check_executor_threads
 
 
 def run_clang_format(cpp_files: list[str]) -> Result:
@@ -46,7 +45,6 @@ class CppGroup(CheckerGroup):
             return [
                 run_clang_format(args.files),
                 self._check('cpplint', [f'--config={tmp_path.name}', '--quiet', '--output=sed'], args.files),
-                check_executor_threads(args.files),
             ]
         finally:
             tmp_path.unlink(missing_ok=True)
