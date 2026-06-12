@@ -13,7 +13,6 @@ FLAGGED = [
     'MultiThreadedExecutor executor;',
     'auto e = rclcpp::executors::MultiThreadedExecutor();',
     'rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions());',
-    'MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 0);',
     'auto e = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();',
     'auto e = new rclcpp::executors::EventsCBGExecutor();',
     'rclcpp::executors::MultiThreadedExecutor executor{};',
@@ -22,6 +21,7 @@ FLAGGED = [
 # Constructions and references that MUST NOT be flagged.
 CLEAN = [
     'rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 4);',
+    'MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 0);',
     'rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), node->getNumThreads());',
     'auto e = std::make_shared<rclcpp::executors::EventsCBGExecutor>(rclcpp::ExecutorOptions(), 2);',
     'rclcpp::executors::SingleThreadedExecutor executor;',

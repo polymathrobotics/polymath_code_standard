@@ -6,9 +6,12 @@ A default-constructed MultiThreadedExecutor / EventsCBGExecutor spawns
 ``hardware_concurrency()`` threads (one per core).
 Their constructors take ``number_of_threads`` as the 2nd
 positional arg, so a bounded count needs ``Type(rclcpp::ExecutorOptions(), N)``;
-``0`` defaults to std::hardware_concurrency, so is disallowed.
+This linter forces ROS users to deliberately choose a thread count.
+This includes passing '0' as an option (which defaults to std::hardware_concurrency)
+so that the max threads are created deliberately
+and not from default construction.
 
-Detection is heuristic (regex + balanced-paren parsing).
+Detection is based on regex + balanced-paren parsing.
 To suppress, use a trailing ``// NOLINT``.
 """
 
@@ -157,7 +160,7 @@ def find_violations(text: str) -> list[tuple[int, str]]:
         elif args is None:
             continue  # unbalanced — don't risk a false positive
         else:
-            bounded = len(args) >= 2 and args[1] not in ('', '0')
+            bounded = len(args) >= 2 and args[1] != ''
         if not default_ctor and bounded:
             continue
 
