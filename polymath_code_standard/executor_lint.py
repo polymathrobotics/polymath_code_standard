@@ -25,41 +25,47 @@ THREADED_EXECUTORS = ('MultiThreadedExecutor', 'EventsCBGExecutor')
 _TYPE_RE = re.compile(r'(?:[A-Za-z_]\w*::)*(' + '|'.join(THREADED_EXECUTORS) + r')\b')
 
 
+def _blank(span: str) -> str:
+    """Spaces of equal length to ``span``, with newlines left in place."""
+    return ''.join('\n' if c == '\n' else ' ' for c in span)
+
+
+def _string_end(text: str, start: int) -> int:
+    """Index just past the string/char literal whose opening quote is at ``start``."""
+    quote = text[start]
+    i = start + 1
+    while i < len(text):
+        if text[i] == '\\':  # escape consumes the next char, including a quote
+            i += 2
+        elif text[i] == quote:
+            return i + 1
+        else:
+            i += 1
+    return len(text)
+
+
 def _blank_comments_and_strings(text: str) -> str:
-    """Replace comments and string/char literals with spaces, preserving length
-    and newlines so byte offsets and line numbers still line up."""
+    """Blank comments and string/char literals to spaces. The result keeps the
+    same length and newline positions as ``text``, so offsets and line numbers
+    computed on it map straight back to the original."""
     out = []
     i, n = 0, len(text)
     while i < n:
-        two = text[i : i + 2]
-        if two == '//':
-            j = text.find('\n', i)
-            j = n if j == -1 else j
-            out.append(' ' * (j - i))
-            i = j
-        elif two == '/*':
-            j = text.find('*/', i + 2)
-            j = n if j == -1 else j + 2
-            out.append(''.join('\n' if c == '\n' else ' ' for c in text[i:j]))
-            i = j
+        pair = text[i : i + 2]
+        if pair == '//':
+            end = text.find('\n', i)
+            end = n if end == -1 else end
+        elif pair == '/*':
+            end = text.find('*/', i + 2)
+            end = n if end == -1 else end + 2
         elif text[i] in '"\'':
-            quote = text[i]
-            out.append(' ')
-            i += 1
-            while i < n:
-                if text[i] == '\\':
-                    out.append('  ')
-                    i += 2
-                    continue
-                if text[i] == quote:
-                    out.append(' ')
-                    i += 1
-                    break
-                out.append('\n' if text[i] == '\n' else ' ')
-                i += 1
+            end = _string_end(text, i)
         else:
             out.append(text[i])
             i += 1
+            continue
+        out.append(_blank(text[i:end]))
+        i = end
     return ''.join(out)
 
 
