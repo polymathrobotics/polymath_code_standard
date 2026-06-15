@@ -7,6 +7,8 @@ This is a low-configuration, highly opinionated set of hooks that take the guess
 One check is provided per file type, with all necessary settings bundled within the hook.
 Consuming repositories reference this repo directly via `.pre-commit-config.yaml` -- no config files need to be copied or kept in sync.
 
+See [DEVELOPING.md](./DEVELOPING.md) for the development workflows to make updates to this tool.
+
 # Usage
 
 ## Prerequisites
@@ -78,16 +80,7 @@ You may now want to stage the new changes, then run again to check for any failu
 
 See [.github/workflows/test.yml](./.github/workflows/test.yml) for a simple GitHub Actions configuration that runs pre-commit hooks.
 
-## Updates
-
-Releases follow semantic versioning:
-- **Patch** -- bugfixes or nonfunctional dependency updates, must not require any manual changes from user
-- **Minor** -- new checks, formatting changes, or new linting checks. May require fixing existing code.
-- **Major** -- removed checks or other breaking changes to existing API
-
-## Notes
-
-### `.ruff.toml` is written to the consuming repo
+## NOTE: `.ruff.toml` is written to the consuming repo
 
 While `ruff` can take a `--config` argument to an absolute file, we are currently allowing subdirectories of a repository to override Ruff configuration.
 
@@ -96,14 +89,3 @@ This means we need to install our baseline `.ruff.toml` configuration in the roo
 Because `pre-commit` can run the same hook in parallel on batches of files, there is a race condition if we try to clean up that file after running.
 
 TL;DR Add `/.ruff.toml` to `.gitignore` for the repository to ignore that it's been put there.
-
-### Developing this repository
-
-`.pre-commit-config.yaml` in this repo is a `repo: .` dev config that runs the hook directly from the working tree.
-
-To test your latest version as it will run in consuming repos:
-1. Commit your latest changes
-1. `pre-commit autoupdate` will change `.pre-commit-config` to point to the latest commit hash on your working copy
-1. `pre-commit run --all-files`
-
-Add files to `test_files/` to validate linter settings work, if other files of that type are not present in this repo.
