@@ -26,3 +26,24 @@ jobs:
       - uses: astral-sh/setup-uv@v7
       - run: uv sync
       - run: uv run pytest
+
+  tag-release:
+    runs-on: ubuntu-latest
+    needs: [pre-commit, pytest]
+    if: github.event_name == 'push'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Tag version from pyproject.toml
+        run: |-
+          VERSION=$(grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+          TAG="v$VERSION"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          if git tag "$TAG"; then
+            git push origin "$TAG"
+            echo "Tagged $TAG"
+          else
+            echo "Tag $TAG already exists, skipping"
+          fi

@@ -34,6 +34,7 @@
   description: Shell checks — shellcheck. Detects scripts by shebang, not just extension.
   entry: polymath_code_standard shell
   types: [shell]
+  exclude: (^|/)\.envrc$
 
 - <<: *python-hook
   id: polymath-cmake
@@ -94,6 +95,7 @@
     Requires args: [--license, <SPDX_ID or 'proprietary'>, --copyright-org, <ORG>]
   entry: polymath_code_standard copyright
   types_or: [python, cmake, shell, c, c++]
+  exclude: (^|/)\.envrc$
 
 - <<: *python-hook
   id: polymath-ansible
