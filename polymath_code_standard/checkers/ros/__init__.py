@@ -3,7 +3,7 @@
 import argparse
 
 from polymath_code_standard.checker import CheckerGroup, Result, check_group
-from polymath_code_standard.executor_lint import check_executor_threads
+from polymath_code_standard.checkers.ros.executor_lint import check_executor_threads
 
 
 @check_group

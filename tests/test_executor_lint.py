@@ -4,7 +4,7 @@
 
 import pytest
 
-from polymath_code_standard.executor_lint import check_executor_threads, find_violations
+from polymath_code_standard.checkers.ros.executor_lint import check_executor_threads, find_violations
 
 # Constructions that MUST be flagged (no explicit, non-zero thread count).
 FLAGGED = [
