@@ -29,6 +29,13 @@
   types_or: [c, c++]
 
 - <<: *python-hook
+  id: polymath-ros
+  name: Polymath Code Standard [ros]
+  description: Opinionated ROS linting and sanity checks
+  entry: polymath_code_standard ros
+  types_or: [c, c++]
+
+- <<: *python-hook
   id: polymath-shell
   name: Polymath Code Standard [shell]
   description: Shell checks — shellcheck. Detects scripts by shebang, not just extension.

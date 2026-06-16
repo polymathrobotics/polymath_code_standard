@@ -39,7 +39,7 @@ Feel free to use only the ones that apply to your usage.
 ---
 repos:
   - repo: https://github.com/polymathrobotics/polymath_code_standard
-    rev: v2.1.4
+    rev: v2.2.0
     hooks:
       # Basic checks and fixes that apply to any text file and the git repository itself
       - id: polymath-general
@@ -49,6 +49,7 @@ repos:
       # Specific languages
       - id: polymath-python
       - id: polymath-cpp
+      - id: polymath-ros
       - id: polymath-shell
       - id: polymath-cmake
       - id: polymath-docker

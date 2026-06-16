@@ -51,6 +51,7 @@ def test_all_groups_registered():
         'general',
         'python',
         'cpp',
+        'ros',
         'shell',
         'cmake',
         'docker',
@@ -80,6 +81,12 @@ def test_cpp(make_project_file):
     content = 'int main()\n{\n  return 0;\n}\n'
     f = make_project_file('example.cpp', content)
     assert runner.main(['cpp', f]) == 0
+
+
+def test_ros(make_file):
+    content = 'rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 4);\n'
+    f = make_file('example.cpp', content)
+    assert runner.main(['ros', f]) == 0
 
 
 def test_shell(make_file):
