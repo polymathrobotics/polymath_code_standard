@@ -1,0 +1,20 @@
+---
+
+- name: Configure some computer
+  hosts: all
+  pre_tasks:
+    - name: Ensure host is reachable
+      ansible.builtin.ping:
+
+    # From the ansible.posix collection: syntax-check can only resolve this if the
+    # hook installed requirements.yml somewhere the child process can see.
+    - name: Enable IP forwarding
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        sysctl_set: true
+        state: present
+        reload: true
+
+  roles:
+    - role: geerlingguy.docker

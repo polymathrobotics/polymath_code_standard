@@ -1,2 +1,9 @@
 ---
 profile: production
+
+exclude_paths:
+  # The hook's own cache of collections and roles installed from
+  # ansible/requirements.yml. Third-party (or another repo's) content that a
+  # consumer cannot fix, and linting it here would fail commits over violations
+  # in someone else's tree. Keep in sync with CACHE_DIR in checkers/ansible.py.
+  - .polymath-ansible/

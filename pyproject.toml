@@ -37,6 +37,12 @@ dev = [
     "pytest>=9.0.3",
 ]
 
+[tool.pytest.ini_options]
+markers = [
+    # Reaches Ansible Galaxy to install real requirements. Deselect with -m 'not network'.
+    "network: test requires network access",
+]
+
 [project.scripts]
 polymath_code_standard = "polymath_code_standard.runner:main"
 polymath_copyright_header = "polymath_code_standard.insert_license:main"
