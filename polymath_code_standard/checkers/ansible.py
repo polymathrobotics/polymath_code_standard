@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import argparse
 import hashlib
+import json
 from pathlib import Path
 
 import yaml
@@ -121,8 +122,60 @@ class AnsibleGroup(CheckerGroup):
             if not result.passed:
                 return results
 
+        git_deps = cls._install_git_dependencies(declared.get('collections') or [])
+        results.extend(git_deps)
+        if any(not r.passed for r in git_deps):
+            return results
+
         STAMP.write_text(f'{digest}\n')
         return results
+
+    @classmethod
+    def _install_git_dependencies(cls, collections: list) -> list[Result]:
+        """Install the dependencies of git-sourced collections.
+
+        ansible-galaxy resolves dependencies for collections it pulls from a galaxy
+        server, but not for ones installed from git: those arrive with their
+        dependencies unmet, and playbooks then fail on modules like
+        community.general.modprobe. Requiring every consumer to restate the list is
+        how it silently rots, so read it from the collection we just installed.
+
+        Only one pass is needed: whatever we install here comes from a galaxy server,
+        so galaxy resolves its dependencies for us.
+        """
+        if not any(cls._is_git_source(entry) for entry in collections):
+            return []
+
+        installed = {}
+        for manifest in sorted(COLLECTIONS_DIR.glob('ansible_collections/*/*/MANIFEST.json')):
+            try:
+                info = json.loads(manifest.read_text())['collection_info']
+            except (json.JSONDecodeError, KeyError, OSError):
+                continue
+            installed[f'{info["namespace"]}.{info["name"]}'] = info.get('dependencies') or {}
+
+        missing = {name: spec for deps in installed.values() for name, spec in deps.items() if name not in installed}
+        if not missing:
+            return []
+
+        # A '*' requirement is expressed by passing the bare name.
+        targets = [f'{name}:{spec}' if spec and spec != '*' else name for name, spec in sorted(missing.items())]
+        return [
+            cls._check(
+                'ansible-galaxy',
+                ['collection', 'install', *targets, '-p', str(COLLECTIONS_DIR)],
+                None,
+                name='ansible-galaxy',
+                env={'ANSIBLE_COLLECTIONS_PATH': str(COLLECTIONS_DIR), 'ANSIBLE_ROLES_PATH': str(ROLES_DIR)},
+            )
+        ]
+
+    @staticmethod
+    def _is_git_source(entry: object) -> bool:
+        if not isinstance(entry, dict):
+            return False
+        name = str(entry.get('name', ''))
+        return entry.get('type') == 'git' or name.startswith('git@') or name.endswith('.git')
 
     @staticmethod
     def _make_cache_dir() -> None:
