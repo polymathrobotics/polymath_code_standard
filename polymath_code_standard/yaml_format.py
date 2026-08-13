@@ -43,11 +43,12 @@ def _make_yaml() -> YAML:
     return yaml
 
 
-def _yamlfix_config() -> YamlfixConfig:
+def _yamlfix_config(explicit_start: bool = True) -> YamlfixConfig:
     config = YamlfixConfig()
     config.sequence_style = YamlNodeStyle.KEEP_STYLE
     config.line_length = 256
     config.whitelines = 1
+    config.explicit_start = explicit_start
     return config
 
 
@@ -314,7 +315,7 @@ def _strip_trailing_whitespace(text: str) -> str:
     return '\n'.join(line.rstrip() for line in text.split('\n'))
 
 
-def format_yaml(source: str) -> str:
+def format_yaml(source: str, explicit_start: bool = True) -> str:
     """Format YAML source, preserving matrix-structured flow sequences.
 
     Raises ValueError for irregular multi-line flow sequences.
@@ -322,13 +323,13 @@ def format_yaml(source: str) -> str:
     if not source:
         return source
     matrices = detect_matrices(source)
-    fixed = fix_code(source, _yamlfix_config())
+    fixed = fix_code(source, _yamlfix_config(explicit_start=explicit_start))
     if matrices:
         fixed = apply_matrices(fixed, matrices)
     return _strip_trailing_whitespace(fixed)
 
 
-def format_yaml_files(files: list[str]) -> list[tuple[str, bool, str]]:
+def format_yaml_files(files: list[str], explicit_start: bool = True) -> list[tuple[str, bool, str]]:
     """Format YAML files in place.
 
     Returns [(filepath, was_changed, error_message)] for each file.
@@ -339,7 +340,7 @@ def format_yaml_files(files: list[str]) -> list[tuple[str, bool, str]]:
         path = Path(filepath)
         try:
             original = path.read_text(encoding='utf-8')
-            formatted = format_yaml(original)
+            formatted = format_yaml(original, explicit_start=explicit_start)
         except ValueError as exc:
             results.append((filepath, False, str(exc)))
             continue

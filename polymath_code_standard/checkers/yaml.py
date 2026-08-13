@@ -10,11 +10,20 @@ from polymath_code_standard.yaml_format import format_yaml_files
 class YamlGroup(CheckerGroup):
     name = 'yaml'
 
+    def register_args(self, subparser: argparse.ArgumentParser) -> None:
+        super().register_args(subparser)
+        subparser.add_argument(
+            '--no-explicit-start',
+            action='store_true',
+            help='Do not add --- header to YAML files',
+        )
+
     def run(self, args: argparse.Namespace) -> list[Result]:
         if not args.files:
             return [Result(name='yamlfix', passed=True, skipped=True)]
         errors, changed = [], []
-        for filepath, was_changed, error in format_yaml_files(args.files):
+        explicit_start = not args.no_explicit_start
+        for filepath, was_changed, error in format_yaml_files(args.files, explicit_start=explicit_start):
             if error:
                 errors.append(f'{filepath}: {error}')
             elif was_changed:
