@@ -1,0 +1,7 @@
+---
+# Both kinds are declared on purpose: `ansible-galaxy collection install` silently
+# ignores a roles-only file and vice versa, so the hook has to dispatch on each key.
+collections:
+  - name: ansible.posix
+roles:
+  - name: geerlingguy.docker

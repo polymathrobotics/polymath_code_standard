@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Smoke tests: verify runner.main dispatches to each checker and runs without error."""
 
+import hashlib
 import shutil
 import uuid
 from pathlib import Path
@@ -10,6 +11,7 @@ import pytest
 
 from polymath_code_standard import runner
 from polymath_code_standard.checker import _GROUPS
+from polymath_code_standard.checkers import ansible as ansible_checker
 
 _PROJECT_ROOT = Path(__file__).parent.parent
 
@@ -165,3 +167,51 @@ def test_ansible(make_file):
     )
     f = make_file('playbook.yml', content)
     assert runner.main(['ansible', f]) == 0
+
+
+@pytest.mark.network
+def test_ansible_installs_requirements(tmp_path, monkeypatch):
+    """A downstream repo declaring requirements.yml gets them installed, then linted.
+
+    The fixture playbook imports a role and a module from a collection, neither of
+    which ansible-lint resolves on its own: it only auto-installs requirements from
+    paths relative to its own project root, which is this package's config dir.
+    """
+    shutil.copytree(_PROJECT_ROOT / 'test_files' / 'ansible', tmp_path / 'ansible')
+    monkeypatch.chdir(tmp_path)
+
+    assert runner.main(['ansible', 'ansible/playbook.yml']) == 0
+
+    # A passing lint already proves the syntax-check child resolved both, but assert
+    # the layout too, so moving these paths fails loudly instead of silently
+    # depending on some other collections path that happens to be populated.
+    assert (tmp_path / ansible_checker.COLLECTIONS_DIR / 'ansible_collections' / 'ansible' / 'posix').is_dir()
+    assert (tmp_path / ansible_checker.ROLES_DIR / 'geerlingguy.docker').is_dir()
+
+    # The cache hides itself, so consuming repos need no .gitignore edit.
+    assert (tmp_path / ansible_checker.CACHE_DIR / '.gitignore').read_text().strip() == '*'
+
+    # Second run installs nothing: re-cloning on every commit would be far too slow.
+    assert ansible_checker.AnsibleGroup._install_requirements() == []
+
+
+def test_ansible_stamp_tracks_requirements(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / 'ansible').mkdir()
+    requirements = tmp_path / ansible_checker.REQUIREMENTS
+    requirements.write_text('---\ncollections:\n  - name: ansible.posix\n')
+
+    stamp = tmp_path / ansible_checker.STAMP
+    stamp.parent.mkdir(parents=True)
+    stamp.write_text(hashlib.sha256(requirements.read_bytes()).hexdigest())
+    assert ansible_checker.AnsibleGroup._install_requirements() == []
+
+    # Editing requirements.yml invalidates the stamp so the install runs again.
+    requirements.write_text('---\nroles:\n  - name: geerlingguy.docker\n')
+    assert ansible_checker.AnsibleGroup._install_requirements() != []
+
+
+def test_ansible_without_requirements_installs_nothing(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    assert ansible_checker.AnsibleGroup._install_requirements() == []
+    assert not (tmp_path / ansible_checker.CACHE_DIR).exists()

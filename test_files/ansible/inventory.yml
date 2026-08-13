@@ -1,0 +1,5 @@
+---
+
+all:
+  vars:
+    foo: well hello there
