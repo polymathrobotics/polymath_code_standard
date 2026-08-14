@@ -6,7 +6,7 @@ verify:
 sync-readme:
   #!/usr/bin/env bash
   set -euo pipefail
-  VERSION=$(uv version | awk '{print $2}')
+  VERSION=$(uv version --short)
   sed -i "s/rev: v[0-9]*\.[0-9]*\.[0-9]*/rev: v$VERSION/" README.md
   echo "README.md pinned to v$VERSION"
 
