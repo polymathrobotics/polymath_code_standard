@@ -104,6 +104,15 @@ class TestFormatYamlNormalisation:
         result = format_yaml('key: value\n')
         assert result.startswith('---\n')
 
+    def test_no_explicit_start_preserves_root_sequence_indentation(self):
+        source = textwrap.dedent("""\
+            - name: first
+              enabled: true
+            - name: second
+              enabled: false
+        """)
+        assert format_yaml(source, explicit_start=False) == source
+
     def test_true_normalised(self):
         result = format_yaml('enabled: True\n')
         assert 'enabled: true' in result
