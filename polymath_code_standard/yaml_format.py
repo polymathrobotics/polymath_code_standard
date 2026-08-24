@@ -323,7 +323,10 @@ def format_yaml(source: str, explicit_start: bool = True) -> str:
     if not source:
         return source
     matrices = detect_matrices(source)
-    fixed = fix_code(source, _yamlfix_config(explicit_start=explicit_start))
+    source_has_explicit_start = source.startswith('---\n')
+    fixed = fix_code(source, _yamlfix_config(explicit_start=True))
+    if not explicit_start and not source_has_explicit_start and fixed.startswith('---\n'):
+        fixed = fixed[4:]
     if matrices:
         fixed = apply_matrices(fixed, matrices)
     return _strip_trailing_whitespace(fixed)
