@@ -36,7 +36,7 @@ Use only the hooks that apply to your project.
 ---
 repos:
   - repo: https://github.com/polymathrobotics/polymath_code_standard
-    rev: v2.4.0
+    rev: v2.5.0
     hooks:
       # File hygiene for all staged files
       - id: polymath-general
