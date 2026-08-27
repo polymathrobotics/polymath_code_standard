@@ -1,12 +1,16 @@
 # SPDX-FileCopyrightText: 2026 Polymath Robotics, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import argparse
+import importlib.resources
 import os
 import shutil
 import tempfile
 from pathlib import Path
 
-from polymath_code_standard.checker import CONFIG_DIR, CheckerGroup, Result, check_group
+from polymath_code_standard.checker import CheckerGroup, Result, check_group
+
+# Config files bundled alongside this checker
+CONFIG_DIR = importlib.resources.files(__package__)
 
 
 @check_group

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Polymath Robotics, Inc.
 # SPDX-License-Identifier: Apache-2.0
 import argparse
+import importlib.resources
 import os
 import re
 import shutil
@@ -8,7 +9,10 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from polymath_code_standard.checker import CONFIG_DIR, CheckerGroup, Result, check_group, tool
+from polymath_code_standard.checker import CheckerGroup, Result, check_group, tool
+
+# Config files bundled alongside this checker
+CONFIG_DIR = importlib.resources.files(__package__)
 
 _IWYU_RE = re.compile(r'^(.+?):(\d+):\s+Add (#include (?:<[^>]+>|"[^"]+")) for')
 

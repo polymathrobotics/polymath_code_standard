@@ -8,8 +8,8 @@ import tempfile
 from pathlib import Path
 
 from polymath_code_standard.checker import CheckerGroup, Result, check_group, filter_files
+from polymath_code_standard.checkers.copyright.licenses import PROPRIETARY, get_license_full_text, get_license_header
 from polymath_code_standard.insert_license import COPYRIGHT_ORG_SENTINEL
-from polymath_code_standard.licenses import PROPRIETARY, get_license_full_text, get_license_header
 
 
 @check_group

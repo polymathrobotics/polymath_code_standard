@@ -27,7 +27,11 @@ dependencies = [
 
 
 [tool.setuptools.package-data]
-"polymath_code_standard" = ["config/*",  "config/.*"]
+"polymath_code_standard.checkers.ansible" = ["ansible-lint.yml"]
+"polymath_code_standard.checkers.copyright" = ["*.txt"]
+"polymath_code_standard.checkers.cpp" = [".cpplint.cfg", "clang-format"]
+"polymath_code_standard.checkers.python" = ["ruff.toml"]
+"polymath_code_standard.checkers.xml" = ["package_format3.xsd"]
 
 [tool.setuptools.packages.find]
 exclude = ["test_files*", "tests*"]
