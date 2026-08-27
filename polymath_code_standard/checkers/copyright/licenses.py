@@ -21,7 +21,7 @@ import urllib.request
 from functools import lru_cache
 from pathlib import Path
 
-_CONFIG_DIR = Path(__file__).parent / 'config'
+_CONFIG_DIR = Path(__file__).parent
 _SPDX_BASE_URL = 'https://raw.githubusercontent.com/spdx/license-list-data/main/json/details/{id}.json'
 
 PROPRIETARY = 'proprietary'

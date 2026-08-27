@@ -2,12 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 import argparse
 import hashlib
+import importlib.resources
 import json
 from pathlib import Path
 
 import yaml
 
-from polymath_code_standard.checker import CONFIG_DIR, CheckerGroup, Result, check_group
+from polymath_code_standard.checker import CheckerGroup, Result, check_group
+
+# Config files bundled alongside this checker
+CONFIG_DIR = importlib.resources.files(__package__)
 
 # Where a repo declares the collections and roles its playbooks import.
 REQUIREMENTS = Path('ansible/requirements.yml')

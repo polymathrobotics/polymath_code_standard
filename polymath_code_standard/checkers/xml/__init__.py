@@ -2,10 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 import argparse
 import functools
+import importlib.resources
 
 from lxml import etree
 
-from polymath_code_standard.checker import CONFIG_DIR, CheckerGroup, Result, check_group
+from polymath_code_standard.checker import CheckerGroup, Result, check_group
+
+# Config files bundled alongside this checker
+CONFIG_DIR = importlib.resources.files(__package__)
 
 # Schemas bundled as package resources; any other URL is fetched from the network.
 _BUNDLED_SCHEMAS: dict[str, str] = {

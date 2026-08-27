@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 import argparse
 import functools
-import importlib.resources
 import os
 import subprocess
 import sys
@@ -11,9 +10,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from identify.identify import tags_from_path
-
-# Path to resource files which are config inputs to the various hooks
-CONFIG_DIR = importlib.resources.files('polymath_code_standard') / 'config'
 
 
 @functools.cache

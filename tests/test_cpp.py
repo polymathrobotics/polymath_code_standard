@@ -8,8 +8,13 @@ from pathlib import Path
 
 import pytest
 
-from polymath_code_standard.checker import CONFIG_DIR
-from polymath_code_standard.checkers.cpp import _insert_includes, _insertion_point, _parse_iwyu_output, fix_iwyu
+from polymath_code_standard.checkers.cpp import (
+    CONFIG_DIR,
+    _insert_includes,
+    _insertion_point,
+    _parse_iwyu_output,
+    fix_iwyu,
+)
 
 _PROJECT_ROOT = Path(__file__).parent.parent
 

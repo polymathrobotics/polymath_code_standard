@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 import pytest
 
-from polymath_code_standard import licenses
-from polymath_code_standard.licenses import get_license_full_text, get_license_header
+from polymath_code_standard.checkers.copyright import licenses
+from polymath_code_standard.checkers.copyright.licenses import get_license_full_text, get_license_header
 
 # ---------------------------------------------------------------------------
 # Minimal mock SPDX payloads
@@ -35,12 +35,12 @@ _MIT_DATA = {
 
 
 def _mock_fetch(data: dict):
-    return patch('polymath_code_standard.licenses._fetch_spdx_json', return_value=data)
+    return patch('polymath_code_standard.checkers.copyright.licenses._fetch_spdx_json', return_value=data)
 
 
 def _mock_fetch_404(spdx_id: str = 'UNKNOWN-1.0'):
     exc = urllib.error.HTTPError(url=None, code=404, msg='Not Found', hdrs=None, fp=None)
-    return patch('polymath_code_standard.licenses._fetch_spdx_json', side_effect=exc)
+    return patch('polymath_code_standard.checkers.copyright.licenses._fetch_spdx_json', side_effect=exc)
 
 
 @pytest.fixture(autouse=True)
@@ -77,7 +77,7 @@ class TestGetLicenseHeaderReuseStyle:
         assert 'SPDX-License-Identifier: GPL-3.0-only' in result
 
     def test_reuse_style_does_not_fetch_network(self):
-        with patch('polymath_code_standard.licenses._fetch_spdx_json') as mock_fetch:
+        with patch('polymath_code_standard.checkers.copyright.licenses._fetch_spdx_json') as mock_fetch:
             get_license_header('Apache-2.0', '2024', 'Acme Corp', reuse_style_header=True)
         mock_fetch.assert_not_called()
 
@@ -178,12 +178,12 @@ class TestGetLicenseFullText:
             get_license_full_text('UNKNOWN-1.0', '2024', 'Acme Corp')
 
     def test_bundled_apache_uses_canonical_formatting(self):
-        with patch('polymath_code_standard.licenses._fetch_spdx_json') as mock_fetch:
+        with patch('polymath_code_standard.checkers.copyright.licenses._fetch_spdx_json') as mock_fetch:
             result = get_license_full_text('Apache-2.0', '2024', 'Acme Corp')
         mock_fetch.assert_not_called()
         assert '                                 Apache License' in result
 
     def test_bundled_takes_precedence_over_spdx(self):
-        with patch('polymath_code_standard.licenses._fetch_spdx_json') as mock_fetch:
+        with patch('polymath_code_standard.checkers.copyright.licenses._fetch_spdx_json') as mock_fetch:
             get_license_full_text('Apache-2.0', '2024', 'Acme Corp')
         mock_fetch.assert_not_called()
