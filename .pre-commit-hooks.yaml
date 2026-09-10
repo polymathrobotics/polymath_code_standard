@@ -45,6 +45,29 @@
   types_or: [go, go-mod, go-sum]
 
 - <<: *python-hook
+  id: polymath-javascript
+  name: Polymath Code Standard [javascript]
+  description: >
+    JavaScript and TypeScript checks with ESLint and Prettier.
+    Accepts args: [--framework, next] and [--framework, storybook], repeatable.
+  entry: polymath_code_standard javascript
+  types_or: [javascript, jsx, ts, tsx]
+
+- <<: *python-hook
+  id: polymath-css
+  name: Polymath Code Standard [css]
+  description: CSS and SCSS checks with Stylelint and Prettier.
+  entry: polymath_code_standard css
+  types_or: [css, scss]
+
+- <<: *python-hook
+  id: polymath-html
+  name: Polymath Code Standard [html]
+  description: HTML formatting with Prettier.
+  entry: polymath_code_standard html
+  types: [html]
+
+- <<: *python-hook
   id: polymath-shell
   name: Polymath Code Standard [shell]
   description: Shell checks — shellcheck. Detects scripts by shebang, not just extension.

@@ -48,6 +48,9 @@ repos:
       - id: polymath-cpp
       - id: polymath-ros
       - id: polymath-go
+      - id: polymath-javascript
+      - id: polymath-css
+      - id: polymath-html
       - id: polymath-shell
       - id: polymath-cmake
       - id: polymath-docker
@@ -201,6 +204,51 @@ Files under `vendor/` are skipped.
 On its first run the hook downloads a pinned `golangci-lint` release, verified against a checksum pinned in this repo, into its own pre-commit virtualenv.
 Nothing is written to your repository, and later runs reuse the download.
 
+---
+
+### `polymath-javascript`
+
+Runs `eslint --fix` and then `prettier` on JavaScript, JSX, TypeScript, and TSX files using Polymath's bundled configuration.
+The rule set is `eslint:recommended`, `typescript-eslint` recommended, and for `.jsx`/`.tsx` files the recommended rules of `eslint-plugin-react`, `eslint-plugin-react-hooks`, and `eslint-plugin-jsx-a11y`.
+`eslint-config-prettier` is applied last, so ESLint enforces no formatting rules.
+
+Framework rule sets are opt-in, because they report on patterns that are only wrong inside those frameworks.
+
+**Optional:**
+
+- `--framework next` -- Add the `recommended` and `core-web-vitals` rules from `@next/eslint-plugin-next`
+- `--framework storybook` -- Add the `flat/recommended` rules from `eslint-plugin-storybook`, which apply to story files
+
+Repeat `--framework` to enable more than one:
+
+```yaml
+- id: polymath-javascript
+  args: [--framework, next, --framework, storybook]
+```
+
+> [!NOTE]
+> The first run of this hook downloads its npm packages.
+> See [Node tooling is installed on first use](#node-tooling-is-installed-on-first-use).
+
+> [!NOTE]
+> Whole-program type checking is not part of this hook.
+> `tsc --noEmit` needs your repo's installed `node_modules` and is not a per-file check, so keep it in your own CI.
+
+---
+
+### `polymath-css`
+
+Runs `stylelint --fix` and then `prettier` on CSS and SCSS files.
+CSS uses `stylelint-config-standard` and SCSS uses `stylelint-config-standard-scss`.
+
+No arguments.
+
+---
+
+### `polymath-html`
+
+Runs `prettier` on HTML files.
+
 No arguments.
 
 ---
@@ -283,6 +331,26 @@ Installs Ansible collections and roles from `ansible/requirements.yml` and runs 
 Dependencies are cached in `.polymath-ansible/` (automatically gitignored) and only reinstalled when `requirements.yml` changes.
 
 No arguments.
+
+---
+
+## Node tooling is installed on first use
+
+`polymath-javascript`, `polymath-css`, and `polymath-html` run ESLint, Stylelint, and Prettier, none of which pip can install.
+Node itself comes from the `nodejs-wheel` PyPI package, so no system Node installation is required.
+
+The first time one of these hooks runs, it installs its pinned npm packages with `npm ci` into `polymath-node/` inside the hook's own pre-commit virtualenv, then stamps a digest of the bundled lockfile and configs beside them.
+Expect that first run to take a minute.
+Later runs reuse the install, which is shared by every repo on the machine using the same hook revision.
+Nothing is written into your repository, so no `.gitignore` entry is needed.
+
+Prettier runs only on the file types these three hooks accept.
+JSON, YAML, and Markdown belong to `polymath-json`, `polymath-yaml`, and `polymath-markdown`, and Prettier never sees them.
+
+Prettier honors `.gitignore` and `.prettierignore` in your repository root, which can only narrow the set of files these hooks format.
+
+An `.editorconfig` in your repository is ignored.
+These hooks pin indentation and line width to the bundled configuration, so formatting does not change from repo to repo.
 
 ---
 

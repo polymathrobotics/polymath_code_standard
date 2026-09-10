@@ -11,6 +11,9 @@ repos:
       - id: polymath-cpp
       - id: polymath-ros
       - id: polymath-go
+      - id: polymath-javascript
+      - id: polymath-css
+      - id: polymath-html
       - id: polymath-shell
       - id: polymath-cmake
       - id: polymath-docker
