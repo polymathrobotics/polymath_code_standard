@@ -1,10 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Polymath Robotics, Inc.
 # SPDX-License-Identifier: Apache-2.0
-"""Tests for CopyrightGroup._check_license_file and _strip_leading_comment_block."""
+"""Tests for CopyrightGroup: LICENSE file management, leading comment stripping, and header insertion."""
 
 import argparse
 from unittest.mock import patch
 
+import pytest
+
+from polymath_code_standard.checker import Result
 from polymath_code_standard.checkers.copyright import CopyrightGroup
 
 _check = CopyrightGroup._check_license_file
@@ -153,3 +156,72 @@ class TestStripLeadingCommentBlock:
         p = self._write(tmp_path, 'f.cpp', content)
         _strip(str(p), '#')  # wrong prefix — should leave file untouched
         assert p.read_text() == content
+
+    def test_preserves_go_build_constraint(self, tmp_path):
+        p = self._write(tmp_path, 'f.go', '// Copyright 2024\n\n//go:build linux\n\npackage main\n')
+        _strip(str(p), '//')
+        assert p.read_text() == '//go:build linux\n\npackage main\n'
+
+    def test_leading_go_build_constraint_leaves_file_unchanged(self, tmp_path):
+        content = '//go:build linux\n\npackage main\n'
+        p = self._write(tmp_path, 'f.go', content)
+        _strip(str(p), '//')
+        assert p.read_text() == content
+
+    def test_preserves_legacy_go_build_constraint(self, tmp_path):
+        p = self._write(tmp_path, 'f.go', '// Copyright 2024\n// +build linux\n\npackage main\n')
+        _strip(str(p), '//')
+        assert p.read_text() == '// +build linux\n\npackage main\n'
+
+
+_SLASH_STYLE_SOURCES = [
+    ('main.cpp', 'int x;\n'),
+    ('main.go', 'package main\n'),
+    ('index.js', 'export const x = 1;\n'),
+    ('App.jsx', 'export const App = () => null;\n'),
+    ('index.ts', 'export const x = 1;\n'),
+    ('App.tsx', 'export const App = () => null;\n'),
+]
+
+_SLASH_STYLE_RESULT_NAME = 'copyright (c/cpp/go/js/ts)'
+
+_REUSE_HEADER = '// SPDX-FileCopyrightText: 2024 Test Corp\n// SPDX-License-Identifier: Apache-2.0\n\n'
+
+
+def _run_copyright(files):
+    """Run the group over files, with LICENSE file management stubbed out."""
+    args = argparse.Namespace(
+        license_id='Apache-2.0',
+        copyright_year='2024',
+        copyright_org='Test Corp',
+        wildcard_copyright_org=False,
+        reuse_style=True,
+        relicense=False,
+        files=[str(f) for f in files],
+    )
+    with patch.object(CopyrightGroup, '_check_license_file', return_value=Result(name='LICENSE file', passed=True)):
+        results = CopyrightGroup().run(args)
+    return next(r for r in results if r.name == _SLASH_STYLE_RESULT_NAME)
+
+
+@pytest.mark.parametrize(('name', 'body'), _SLASH_STYLE_SOURCES)
+class TestSlashCommentStyleFiles:
+    def test_header_is_inserted(self, tmp_path, name, body):
+        src = tmp_path / name
+        src.write_text(body, encoding='utf-8')
+        result = _run_copyright([src])
+        assert not result.passed
+        assert src.read_text() == _REUSE_HEADER + body
+
+    def test_second_run_passes(self, tmp_path, name, body):
+        src = tmp_path / name
+        src.write_text(body, encoding='utf-8')
+        _run_copyright([src])
+        assert _run_copyright([src]).passed
+
+    def test_existing_correct_header_passes(self, tmp_path, name, body):
+        src = tmp_path / name
+        src.write_text(_REUSE_HEADER + body, encoding='utf-8')
+        result = _run_copyright([src])
+        assert result.passed
+        assert src.read_text() == _REUSE_HEADER + body

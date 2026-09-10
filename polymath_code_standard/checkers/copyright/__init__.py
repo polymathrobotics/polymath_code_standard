@@ -11,6 +11,8 @@ from polymath_code_standard.checker import CheckerGroup, Result, check_group, fi
 from polymath_code_standard.checkers.copyright.licenses import PROPRIETARY, get_license_full_text, get_license_header
 from polymath_code_standard.insert_license import COPYRIGHT_ORG_SENTINEL
 
+_GO_DIRECTIVE_PATTERN = re.compile(r'//\s*(go:|\+build)')
+
 
 @check_group
 class CopyrightGroup(CheckerGroup):
@@ -64,13 +66,13 @@ class CopyrightGroup(CheckerGroup):
         header_text = get_license_header(
             args.license_id, args.copyright_year, insert_org, reuse_style_header=args.reuse_style
         )
-        py_cmake_shell = filter_files(args.files, frozenset({'python', 'cmake', 'shell'}))
-        cpp = filter_files(args.files, frozenset({'c', 'c++'}))
+        hash_style = filter_files(args.files, frozenset({'python', 'cmake', 'shell'}))
+        slash_style = filter_files(args.files, frozenset({'c', 'c++', 'go', 'javascript', 'jsx', 'ts', 'tsx'}))
 
         if args.relicense:
-            for f in py_cmake_shell:
+            for f in hash_style:
                 self._strip_leading_comment_block(f, '#')
-            for f in cpp:
+            for f in slash_style:
                 self._strip_leading_comment_block(f, '//')
 
         wildcard_flag = ['--wildcard-copyright-org'] if args.wildcard_copyright_org else []
@@ -90,15 +92,15 @@ class CopyrightGroup(CheckerGroup):
                         '--no-extra-eol',
                     ]
                     + wildcard_flag,
-                    py_cmake_shell,
+                    hash_style,
                     name='copyright (py/cmake/shell)',
                 ),
                 self._check(
                     'polymath_copyright_header',
                     ['--license-filepath', license_filepath, '--comment-style', '//', '--allow-past-years']
                     + wildcard_flag,
-                    cpp,
-                    name='copyright (cpp)',
+                    slash_style,
+                    name='copyright (c/cpp/go/js/ts)',
                 ),
             ]
         finally:
@@ -120,6 +122,7 @@ class CopyrightGroup(CheckerGroup):
         Strips all contiguous comment lines (matching comment_prefix) starting after
         any shebang or encoding declaration, plus one following blank line.  Used so
         that a subsequent insert_license run can write a fresh header in their place.
+        A Go directive (`//go:` or `// +build`) ends the block.
         """
         path = Path(filepath)
         lines = path.read_text(encoding='utf-8', errors='replace').splitlines(keepends=True)
@@ -129,7 +132,11 @@ class CopyrightGroup(CheckerGroup):
         if idx < len(lines) and re.match(r'#\s*-\*-\s*coding', lines[idx]):
             idx += 1
         block_start = idx
-        while idx < len(lines) and lines[idx].rstrip('\r\n').lstrip().startswith(comment_prefix):
+        while (
+            idx < len(lines)
+            and lines[idx].rstrip('\r\n').lstrip().startswith(comment_prefix)
+            and not _GO_DIRECTIVE_PATTERN.match(lines[idx].lstrip())
+        ):
             idx += 1
         if idx < len(lines) and not lines[idx].strip():
             idx += 1
