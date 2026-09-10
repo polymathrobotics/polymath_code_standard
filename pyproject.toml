@@ -15,6 +15,7 @@ dependencies = [
     "cpplint==2.0.0",
     "hadolint-py @ git+https://github.com/AleksaC/hadolint-py.git@v2.14.0",
     "identify==2.6.18",
+    "nodejs-wheel==24.19.0",
     "pre-commit-hooks==5.0.0",
     "pymarkdownlnt==0.9.28",
     "rapidfuzz==3.13.0",
@@ -32,6 +33,7 @@ dependencies = [
 "polymath_code_standard.checkers.cpp" = [".cpplint.cfg", "clang-format"]
 "polymath_code_standard.checkers.go" = ["golangci.yml"]
 "polymath_code_standard.checkers.python" = ["ruff.toml"]
+"polymath_code_standard.checkers.web" = ["*.json", "*.mjs"]
 "polymath_code_standard.checkers.xml" = ["package_format3.xsd"]
 
 [tool.setuptools.packages.find]
@@ -44,7 +46,7 @@ dev = [
 
 [tool.pytest.ini_options]
 markers = [
-    # Downloads real tooling, from Ansible Galaxy or a GitHub release. Deselect with -m 'not network'.
+    # Downloads real tooling from Ansible Galaxy, npm, or a GitHub release. Deselect with -m 'not network'.
     "network: test requires network access",
 ]
 

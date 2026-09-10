@@ -1,0 +1,9 @@
+$banner-color: #333;
+
+.banner {
+  color: $banner-color;
+
+  &:hover {
+    color: #666;
+  }
+}

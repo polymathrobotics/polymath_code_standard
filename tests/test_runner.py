@@ -53,6 +53,9 @@ def test_all_groups_registered():
         'cpp',
         'ros',
         'go',
+        'javascript',
+        'css',
+        'html',
         'shell',
         'cmake',
         'docker',
@@ -98,6 +101,32 @@ def test_go(tmp_path):
         '// Package main is a fixture.\npackage main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("x")\n}\n'
     )
     assert runner.main(['go', str(tmp_path / 'main.go'), str(tmp_path / 'go.mod')]) == 0
+
+
+@pytest.fixture
+def web_file(monkeypatch):
+    """Name a committed web fixture, relative to the project root.
+
+    ESLint's base path is the working directory, and Prettier's default --ignore-path
+    includes .gitignore, so these checkers only see tracked files under the root.
+    """
+    monkeypatch.chdir(_PROJECT_ROOT)
+    return lambda name: str(Path('test_files') / 'web' / name)
+
+
+@pytest.mark.network
+def test_javascript(web_file):
+    assert runner.main(['javascript', web_file('greeting.ts')]) == 0
+
+
+@pytest.mark.network
+def test_css(web_file):
+    assert runner.main(['css', web_file('banner.css')]) == 0
+
+
+@pytest.mark.network
+def test_html(web_file):
+    assert runner.main(['html', web_file('banner.html')]) == 0
 
 
 def test_shell(make_file):
