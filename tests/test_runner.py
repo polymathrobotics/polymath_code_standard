@@ -52,6 +52,7 @@ def test_all_groups_registered():
         'python',
         'cpp',
         'ros',
+        'go',
         'shell',
         'cmake',
         'docker',
@@ -87,6 +88,16 @@ def test_ros(make_file):
     content = 'rclcpp::executors::MultiThreadedExecutor executor(rclcpp::ExecutorOptions(), 4);\n'
     f = make_file('example.cpp', content)
     assert runner.main(['ros', f]) == 0
+
+
+@pytest.mark.network
+@pytest.mark.skipif(shutil.which('go') is None, reason='Go toolchain not on PATH')
+def test_go(tmp_path):
+    (tmp_path / 'go.mod').write_text('module example.com/clean\n\ngo 1.23\n')
+    (tmp_path / 'main.go').write_text(
+        '// Package main is a fixture.\npackage main\n\nimport "fmt"\n\nfunc main() {\n\tfmt.Println("x")\n}\n'
+    )
+    assert runner.main(['go', str(tmp_path / 'main.go'), str(tmp_path / 'go.mod')]) == 0
 
 
 def test_shell(make_file):

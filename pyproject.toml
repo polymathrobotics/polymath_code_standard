@@ -30,6 +30,7 @@ dependencies = [
 "polymath_code_standard.checkers.ansible" = ["ansible-lint.yml"]
 "polymath_code_standard.checkers.copyright" = ["*.txt"]
 "polymath_code_standard.checkers.cpp" = [".cpplint.cfg", "clang-format"]
+"polymath_code_standard.checkers.go" = ["golangci.yml"]
 "polymath_code_standard.checkers.python" = ["ruff.toml"]
 "polymath_code_standard.checkers.xml" = ["package_format3.xsd"]
 
@@ -43,7 +44,7 @@ dev = [
 
 [tool.pytest.ini_options]
 markers = [
-    # Reaches Ansible Galaxy to install real requirements. Deselect with -m 'not network'.
+    # Downloads real tooling, from Ansible Galaxy or a GitHub release. Deselect with -m 'not network'.
     "network: test requires network access",
 ]
 

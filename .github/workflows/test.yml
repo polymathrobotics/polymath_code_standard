@@ -15,12 +15,19 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
+      # The polymath-go hook runs over test_files/go, which needs the Go toolchain.
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
       - uses: pre-commit/action@v3.0.1
 
   pytest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
       - uses: astral-sh/setup-uv@v7
       - run: uv sync
       - run: uv run pytest
