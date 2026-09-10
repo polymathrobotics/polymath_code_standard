@@ -98,10 +98,10 @@
   name: Polymath Code Standard [copyright]
   description: >
     Insert copyright headers. Handles all supported file types:
-    Python/CMake/Shell (# style) and C/C++ (// style).
+    Python/CMake/Shell (# style) and C/C++/Go/JavaScript/JSX/TypeScript/TSX (// style).
     Requires args: [--license, <SPDX_ID or 'proprietary'>, --copyright-org, <ORG>]
   entry: polymath_code_standard copyright
-  types_or: [python, cmake, shell, c, c++]
+  types_or: [python, cmake, shell, c, c++, go, javascript, jsx, ts, tsx]
   exclude: (^|/)\.envrc$
 
 - <<: *python-hook

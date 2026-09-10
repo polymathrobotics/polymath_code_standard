@@ -123,10 +123,10 @@ No arguments.
 
 ### `polymath-copyright`
 
-Inserts and validates copyright headers for Python, CMake, Shell, C, and C++ files.
+Inserts and validates copyright headers for Python, CMake, Shell, C, C++, Go, JavaScript, JSX, TypeScript, and TSX files.
 Also creates or updates the `LICENSE` file (skipped for proprietary licenses).
 Python, CMake, and Shell files use `#` comment style.
-C and C++ files use `//` comment style.
+C, C++, Go, JavaScript, JSX, TypeScript, and TSX files use `//` comment style.
 
 **Required:**
 
