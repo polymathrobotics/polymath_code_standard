@@ -44,6 +44,10 @@ jobs:
             echo "Run 'just sync-readme' to fix."
             exit 1
           }
+          grep -qx "## $VERSION" CHANGELOG.md || {
+            echo "CHANGELOG.md has no '## $VERSION' section"
+            exit 1
+          }
 
   tag-release:
     runs-on: ubuntu-latest
@@ -54,15 +58,32 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Tag version from pyproject.toml
-        run: |-
+        id: tag
+        run: |
           VERSION=$(grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
           TAG="v$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null; then
             echo "Tag $TAG already exists, skipping"
+            echo "created=false" >> "$GITHUB_OUTPUT"
           else
             git config user.name 'github-actions[bot]'
             git config user.email 'github-actions[bot]@users.noreply.github.com'
             git tag "$TAG"
             git push origin "$TAG"
             echo "Tagged $TAG"
+            echo "created=true" >> "$GITHUB_OUTPUT"
           fi
+      # Release notes are the CHANGELOG.md section for this version, from its
+      # heading up to the next heading.
+      - name: Publish GitHub release
+        if: steps.tag.outputs.created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.tag.outputs.version }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |-
+          awk -v v="$VERSION" '$0 == "## " v {p=1; next} /^## /{p=0} p' CHANGELOG.md > notes.md
+          test -s notes.md || { echo "CHANGELOG.md has no '## $VERSION' section"; exit 1; }
+          gh release create "$TAG" --title "$TAG" --notes-file notes.md

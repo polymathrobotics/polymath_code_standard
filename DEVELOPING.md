@@ -20,8 +20,10 @@ To bump the version, use `just bump` -- it updates `pyproject.toml` and syncs th
 just bump minor   # or major / patch
 ```
 
-CI will fail on PRs where the two are out of sync.
-The tag is pushed automatically by CI on merge to main.
+Then add a `## <version>` section to `CHANGELOG.md` describing the release.
+
+CI fails PRs where the README pin or the changelog section is missing for the version in `pyproject.toml`.
+On merge to main, CI pushes the tag and publishes a GitHub release whose notes are that changelog section.
 
 ## Testing
 
