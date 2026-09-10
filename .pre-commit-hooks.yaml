@@ -36,6 +36,15 @@
   types_or: [c, c++]
 
 - <<: *python-hook
+  id: polymath-go
+  name: Polymath Code Standard [go]
+  description: >
+    Go checks: golangci-lint fmt, golangci-lint run, and go mod tidy.
+    Requires Go 1.23 or newer on PATH.
+  entry: polymath_code_standard go
+  types_or: [go, go-mod, go-sum]
+
+- <<: *python-hook
   id: polymath-shell
   name: Polymath Code Standard [shell]
   description: Shell checks — shellcheck. Detects scripts by shebang, not just extension.

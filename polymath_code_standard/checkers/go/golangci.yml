@@ -1,0 +1,16 @@
+---
+version: '2'
+run:
+  # Report paths relative to the module root the hook runs from.
+  relative-path-mode: wd
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+linters:
+  default: standard
+  enable:
+    - errorlint
+    - misspell
+    - revive
+    - unconvert

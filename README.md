@@ -47,6 +47,7 @@ repos:
       - id: polymath-python
       - id: polymath-cpp
       - id: polymath-ros
+      - id: polymath-go
       - id: polymath-shell
       - id: polymath-cmake
       - id: polymath-docker
@@ -175,6 +176,30 @@ No arguments.
 Enforces ROS-specific C++ conventions.
 Requires that multi-threaded executors (`MultiThreadedExecutor`, `EventsCBGExecutor`) specify an explicit thread count.
 Suppress a check on a specific line with a trailing `// NOLINT` comment.
+
+No arguments.
+
+---
+
+### `polymath-go`
+
+Runs `golangci-lint` on Go files using Polymath's bundled configuration, and `go mod tidy -diff` on staged `go.mod` and `go.sum` files.
+
+- Formatting with `gofumpt` and `goimports`.
+  Files that need it are rewritten in place and the hook fails so you re-stage them.
+- Linting with `errcheck`, `govet`, `ineffassign`, `staticcheck`, `unused`, `errorlint`, `misspell`, `revive`, and `unconvert`.
+- Module tidiness: staged module files must match what `go mod tidy` would produce.
+
+Go files are grouped by their nearest ancestor `go.mod`, and each group is checked from that module root.
+A `.go` file with no `go.mod` above it fails the hook.
+Files under `vendor/` are skipped.
+
+> [!NOTE]
+> Requires Go 1.23 or newer on `PATH`.
+> Install it from [go.dev/dl](https://go.dev/dl).
+
+On its first run the hook downloads a pinned `golangci-lint` release, verified against a checksum pinned in this repo, into its own pre-commit virtualenv.
+Nothing is written to your repository, and later runs reuse the download.
 
 No arguments.
 

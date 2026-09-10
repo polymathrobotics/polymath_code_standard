@@ -43,18 +43,21 @@ def tool(name: str) -> str:
     return str(Path(sys.executable).parent / name)
 
 
-def run(name: str, cmd: list[str], files: list[str] | None = None, env: dict | None = None) -> Result:
+def run(
+    name: str, cmd: list[str], files: list[str] | None = None, env: dict | None = None, cwd: str | None = None
+) -> Result:
     """Run a check as a subprocess.
 
     files=[]  → skipped (no applicable files for this type)
     files=None → run with no extra arguments
     env → merged on top of os.environ when provided
+    cwd → working directory for the subprocess
     """
     if files is not None and not files:
         return Result(name=name, passed=True, skipped=True)
     full_cmd = cmd + (files or [])
     merged_env = {**os.environ, **env} if env else None
-    proc = subprocess.run(full_cmd, capture_output=True, text=True, env=merged_env)
+    proc = subprocess.run(full_cmd, capture_output=True, text=True, env=merged_env, cwd=cwd)
     output = (proc.stdout + proc.stderr).strip()
     return Result(name=name, passed=proc.returncode == 0, output=output, cmd=full_cmd)
 
