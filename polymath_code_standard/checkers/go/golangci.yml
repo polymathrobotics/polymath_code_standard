@@ -3,6 +3,8 @@ version: '2'
 run:
   # Report paths relative to the module root the hook runs from.
   relative-path-mode: wd
+  # Tolerate another golangci-lint instance, such as an editor's.
+  allow-parallel-runners: true
 formatters:
   enable:
     - gofumpt

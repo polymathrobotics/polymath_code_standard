@@ -3,6 +3,13 @@
 All notable changes to this project are documented in this file.
 Releases follow semantic versioning as described in [DEVELOPING.md](./DEVELOPING.md).
 
+## 2.6.1
+
+### Fixed
+
+- `polymath-go` no longer fails with "parallel golangci-lint is running" on commits with many Go files.
+  The hook runs as a single process, and golangci-lint tolerates other instances such as an editor's.
+
 ## 2.6.0
 
 New hooks for Go and the web stack.

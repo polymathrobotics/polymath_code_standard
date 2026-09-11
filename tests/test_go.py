@@ -15,6 +15,7 @@ import tarfile
 from pathlib import Path
 
 import pytest
+import yaml
 
 from polymath_code_standard import runner
 from polymath_code_standard.checker import Result
@@ -90,6 +91,18 @@ def test_group_by_module_reports_files_outside_any_module(tmp_path):
 def test_package_dirs_collapses_to_distinct_directories():
     relative = [Path('main.go'), Path('doc.go'), Path('pkg/a.go'), Path('pkg/b.go'), Path('pkg/sub/c.go')]
     assert go_checker.package_dirs(relative) == ['.', './pkg', './pkg/sub']
+
+
+def test_hook_runs_as_a_single_process():
+    """pre-commit passes every staged file to one process, since golangci-lint locks per run."""
+    hooks = yaml.safe_load((_PROJECT_ROOT / '.pre-commit-hooks.yaml').read_text())
+    go_hook = next(h for h in hooks if h['id'] == 'polymath-go')
+    assert go_hook['require_serial'] is True
+
+
+def test_bundled_config_allows_parallel_runners():
+    config = yaml.safe_load((go_checker.CONFIG_DIR / 'golangci.yml').read_text())
+    assert config['run']['allow-parallel-runners'] is True
 
 
 def test_file_without_go_mod_fails(tmp_path, monkeypatch):
