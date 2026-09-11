@@ -43,6 +43,8 @@
     Requires Go 1.23 or newer on PATH.
   entry: polymath_code_standard go
   types_or: [go, go-mod, go-sum]
+  # golangci-lint holds a file lock per run, so all files go to one process.
+  require_serial: true
 
 - <<: *python-hook
   id: polymath-javascript
