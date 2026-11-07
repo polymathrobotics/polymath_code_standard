@@ -58,6 +58,22 @@ def test_ansible_installs_requirements(tmp_path, monkeypatch):
     assert ansible_checker.AnsibleGroup._install_requirements() == []
 
 
+def test_ansible_resolves_repo_collection(tmp_path, monkeypatch):
+    """A playbook resolves a collection the repo develops under ansible/collections."""
+    role = tmp_path / 'ansible' / 'collections' / 'ansible_collections' / 'acme' / 'local' / 'roles' / 'greet'
+    (role / 'tasks').mkdir(parents=True)
+    (role / 'tasks' / 'main.yml').write_text('---\n- name: Greet\n  ansible.builtin.debug:\n    msg: hello\n')
+    # Ansible finds a collections/ directory beside the playbook by itself, so nest the playbook away from it.
+    scenario = tmp_path / 'ansible' / 'scenarios' / 'greet'
+    scenario.mkdir(parents=True)
+    (scenario / 'converge.yml').write_text(
+        '---\n- name: Greet some computer\n  hosts: all\n  roles:\n    - role: acme.local.greet\n'
+    )
+    monkeypatch.chdir(tmp_path)
+
+    assert runner.main(['ansible', 'ansible/scenarios/greet/converge.yml']) == 0
+
+
 def test_ansible_stamp_tracks_requirements(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / 'ansible').mkdir()

@@ -36,7 +36,7 @@ Use only the hooks that apply to your project.
 ---
 repos:
   - repo: https://github.com/polymathrobotics/polymath_code_standard
-    rev: v2.7.0
+    rev: v2.7.1
     hooks:
       # File hygiene for all staged files
       - id: polymath-general
@@ -330,6 +330,7 @@ No arguments.
 
 Installs Ansible collections and roles from `ansible/requirements.yml` and runs `ansible-lint` with Polymath's configuration.
 Dependencies are cached in `.polymath-ansible/` (automatically gitignored) and only reinstalled when `requirements.yml` changes.
+Collections the repo develops itself under `ansible/collections/` resolve from the working tree.
 
 No arguments.
 

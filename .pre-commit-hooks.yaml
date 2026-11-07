@@ -144,3 +144,5 @@
   description: Run ansible-lint with Polymath settings
   entry: polymath_code_standard ansible
   types: [file]
+  # Each process installs ansible/requirements.yml into the same cache, so all files go to one process.
+  require_serial: true

@@ -3,6 +3,16 @@
 All notable changes to this project are documented in this file.
 Releases follow semantic versioning as described in [DEVELOPING.md](./DEVELOPING.md).
 
+## 2.7.1
+
+### Fixed
+
+- `polymath-ansible` resolves collections that the repo develops under `ansible/collections/`.
+  Since 2.3.0 only the `.polymath-ansible/` cache was on the collections path.
+  Syntax-check reported the repo's own roles and playbooks as not found, unless the playbook sat beside a `collections/` directory.
+- `polymath-ansible` runs as a single process.
+  Under `--all-files`, parallel runs installed `ansible/requirements.yml` into the same cache at once and failed with "Directory not empty".
+
 ## 2.7.0
 
 Minor bump: a new check in `polymath-general`.
