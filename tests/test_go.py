@@ -170,7 +170,9 @@ def test_unsupported_platform_returns_failed_result(tmp_path, monkeypatch):
     assert 'Windows' in result.output
 
 
-def _fake_tarball(path: Path, member_name: str = 'golangci-lint-2.13.2-linux-amd64/golangci-lint') -> Path:
+def _fake_tarball(
+    path: Path, member_name: str = f'golangci-lint-{_golangci.VERSION}-linux-amd64/golangci-lint'
+) -> Path:
     payload = b'#!/bin/sh\necho fake\n'
     with tarfile.open(path, 'w:gz') as archive:
         info = tarfile.TarInfo(member_name)

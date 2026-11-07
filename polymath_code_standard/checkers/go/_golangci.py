@@ -17,15 +17,15 @@ from pathlib import Path
 
 from polymath_code_standard.checker import Result
 
-VERSION = '2.13.2'
+VERSION = '2.15.0'
 
 # sha256 of each release tarball, from golangci-lint-<VERSION>-checksums.txt.
 # Bump these together with VERSION.
 CHECKSUMS = {
-    ('darwin', 'amd64'): '8a13aaf9cbbb1dee52824e862cf0d0720e5bb97c1f4260d1e51623a09492b57b',
-    ('darwin', 'arm64'): 'f4bf83f0b64f055c42b28fc9a38861839f69c096e61c788e72dfaae412011789',
-    ('linux', 'amd64'): '2277d43b98ec0054280f2ac26b53268bae97682444678a59a657dd565da021d6',
-    ('linux', 'arm64'): 'a2a4e0065aa41be71f7c5ac90f271b61751331e5d04314e62afe4027855f0893',
+    ('darwin', 'amd64'): '767b899a28285e88ded2823d5dcc4bc5ef681173eb2d80f029a7b17ee4ece3b8',
+    ('darwin', 'arm64'): 'd1e409481a8ca846c4bc97e781eb5cb1bd5c23353a0b3977a1cbda1b1b6447d5',
+    ('linux', 'amd64'): '9b7fe6a6bf6334b98decf8d86b11415ea7889afdabdd1959fdce23af2a9ebcea',
+    ('linux', 'arm64'): 'b4d8f17068b35ee6060cc2f69a16fb48740d706fbba81661c318649c114a6998',
 }
 
 RELEASE_URL = 'https://github.com/golangci/golangci-lint/releases/download/v{version}/{asset}.tar.gz'
