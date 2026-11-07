@@ -117,6 +117,7 @@ Applies file hygiene checks to all staged files.
 - Ensures shebanged scripts are executable
 - Validates symlinks
 - Blocks git submodules
+- Requires files that `.gitattributes` stores in Git LFS to be staged as LFS pointers, which catches commits made without git-lfs installed
 - Adds a trailing newline to files
 - Normalizes line endings
 - Removes trailing whitespace
