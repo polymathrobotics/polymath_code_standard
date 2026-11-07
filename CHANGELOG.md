@@ -3,6 +3,21 @@
 All notable changes to this project are documented in this file.
 Releases follow semantic versioning as described in [DEVELOPING.md](./DEVELOPING.md).
 
+## 2.7.0
+
+Minor bump: a new check in `polymath-general`.
+
+### Added
+
+- `polymath-general` requires files that `.gitattributes` assigns to Git LFS to be staged as LFS pointers.
+  It catches files committed from a machine without git-lfs installed, and prints the `git add --renormalize` command that restages them.
+  A repository that already has such files committed fails the check under `--all-files` until they are restaged.
+
+### Fixed
+
+- `polymath-go` works with Go 1.27.
+  The pinned golangci-lint is now 2.15.0, since 2.13.2 cannot read the Go 1.27 standard library.
+
 ## 2.6.1
 
 ### Fixed
