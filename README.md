@@ -330,6 +330,7 @@ No arguments.
 
 Installs Ansible collections and roles from `ansible/requirements.yml` and runs `ansible-lint` with Polymath's configuration.
 Dependencies are cached in `.polymath-ansible/` (automatically gitignored) and only reinstalled when `requirements.yml` changes.
+Collections the repo develops itself under `ansible/collections/` resolve from the working tree.
 
 No arguments.
 

@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import importlib.resources
 import json
+import os
 from pathlib import Path
 
 import yaml
@@ -12,6 +13,9 @@ from polymath_code_standard.checker import CheckerGroup, Result, check_group
 
 # Config files bundled alongside this checker
 CONFIG_DIR = importlib.resources.files(__package__)
+
+# Where a repo keeps the collections it develops itself, so its playbooks resolve them from the working tree.
+REPO_COLLECTIONS_DIR = Path('ansible/collections')
 
 # Where a repo declares the collections and roles its playbooks import.
 REQUIREMENTS = Path('ansible/requirements.yml')
@@ -67,7 +71,7 @@ class AnsibleGroup(CheckerGroup):
                 args.files,
                 name='ansible-lint',
                 env={
-                    'ANSIBLE_COLLECTIONS_PATH': str(COLLECTIONS_DIR),
+                    'ANSIBLE_COLLECTIONS_PATH': os.pathsep.join([str(REPO_COLLECTIONS_DIR), str(COLLECTIONS_DIR)]),
                     'ANSIBLE_ROLES_PATH': str(ROLES_DIR),
                 },
             )
