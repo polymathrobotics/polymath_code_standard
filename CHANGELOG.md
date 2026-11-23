@@ -3,6 +3,17 @@
 All notable changes to this project are documented in this file.
 Releases follow semantic versioning as described in [DEVELOPING.md](./DEVELOPING.md).
 
+## 2.8.0
+
+Minor bump: a new formatter in `polymath-xml`.
+
+### Added
+
+- `polymath-xml` formats the dependencies of ROS `package.xml` files.
+  It groups them by tag into blank-line separated blocks in lifecycle order, and sorts each block by package name.
+  A comment heads a section that stays together within its tag.
+  A repository with unsorted dependencies gets them rewritten under `--all-files`.
+
 ## 2.7.1
 
 ### Fixed
