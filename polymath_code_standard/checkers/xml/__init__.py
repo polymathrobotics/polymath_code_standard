@@ -3,10 +3,12 @@
 import argparse
 import functools
 import importlib.resources
+from pathlib import Path
 
 from lxml import etree
 
 from polymath_code_standard.checker import CheckerGroup, Result, check_group
+from polymath_code_standard.package_xml_format import format_package_xml_files
 
 # Config files bundled alongside this checker
 CONFIG_DIR = importlib.resources.files(__package__)
@@ -68,13 +70,32 @@ class XmlGroup(CheckerGroup):
             return [Result(name='xml-validate', passed=True, skipped=True)]
 
         all_errors = []
+        valid = []
         for f in args.files:
-            for msg in _validate_xml(f):
-                all_errors.append(f'{f}: {msg}')
+            errors = _validate_xml(f)
+            all_errors.extend(f'{f}: {msg}' for msg in errors)
+            if not errors:
+                valid.append(f)
         return [
             Result(
                 name='xml-validate',
                 passed=not all_errors,
                 output='\n'.join(all_errors),
-            )
+            ),
+            _format_package_xmls([f for f in valid if Path(f).name == 'package.xml']),
         ]
+
+
+def _format_package_xmls(files: list[str]) -> Result:
+    if not files:
+        return Result(name='package-xml-format', passed=True, skipped=True)
+    errors, changed = [], []
+    for filepath, was_changed, error in format_package_xml_files(files):
+        if error:
+            errors.append(f'{filepath}: {error}')
+        elif was_changed:
+            changed.append(f'  {filepath}')
+    output = errors
+    if changed:
+        output += ['Files reformatted — please re-stage and recommit:', *changed]
+    return Result(name='package-xml-format', passed=not output, output='\n'.join(output))

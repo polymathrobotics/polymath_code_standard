@@ -36,7 +36,7 @@ Use only the hooks that apply to your project.
 ---
 repos:
   - repo: https://github.com/polymathrobotics/polymath_code_standard
-    rev: v2.7.1
+    rev: v2.8.0
     hooks:
       # File hygiene for all staged files
       - id: polymath-general
@@ -293,6 +293,31 @@ No arguments.
 Validates XML well-formedness and schema compliance.
 Supports `xml-model` processing instructions and `xsi:noNamespaceSchemaLocation`.
 Includes a bundled `package_format3.xsd` schema for ROS `package.xml` validation.
+
+Formats the dependencies of format 2 and 3 ROS `package.xml` files.
+Each dependency tag gets its own block, separated by blank lines, in this order:
+`buildtool_depend`, `buildtool_export_depend`, `build_depend`, `build_export_depend`, `depend`, `exec_depend`, `test_depend`, `doc_depend`.
+Each block is sorted by package name.
+
+A comment between dependencies heads a section.
+The section holds the dependencies that follow the comment, up to the next blank line or comment.
+The section stays together, sorted, after the uncommented block of its tag.
+A comment that applies to a single dependency needs a blank line after that dependency.
+A comment at the end of a dependency's line moves with that dependency.
+
+```xml
+<buildtool_depend>ament_cmake</buildtool_depend>
+
+<depend>rclcpp</depend>
+<depend>sensor_msgs</depend>
+
+<exec_depend>polymath_launch</exec_depend>
+
+<!-- Installed for developer convenience -->
+<exec_depend>ros2cli_common_extensions</exec_depend>
+
+<test_depend>ament_cmake_pytest</test_depend>
+```
 
 No arguments.
 
